@@ -1,0 +1,1879 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Manual Recon Field Guide</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --line:#30363d;
+  --fg:#e6edf3; --mut:#8b949e; --dim:#6e7681;
+  --mint:#3fb950; --cyan:#58a6ff; --amber:#d29922; --red:#f85149; --purple:#bc8cff;
+  --mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font:10.5pt/1.55 var(--sans);margin:0;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:14mm 12mm 16mm}
+.pg{padding:0 2mm}
+
+/* ---------- cover ---------- */
+.cover{min-height:252mm;display:flex;flex-direction:column;justify-content:center;
+  border-left:3px solid var(--mint);padding-left:12mm;break-after:page}
+.cover .kick{font:600 9pt/1 var(--mono);color:var(--mint);letter-spacing:.22em;
+  text-transform:uppercase;margin-bottom:10mm}
+.cover h1{font:700 34pt/1.05 var(--sans);margin:0 0 4mm;letter-spacing:-.5pt}
+.cover h2{font:400 15pt/1.4 var(--sans);color:var(--mut);margin:0 0 16mm;max-width:150mm}
+.cover .meta{font:9.5pt/1.9 var(--mono);color:var(--dim)}
+.cover .meta b{color:var(--fg);font-weight:600}
+
+/* ---------- structure ---------- */
+h2.ch{font:700 19pt/1.2 var(--sans);margin:0 0 1mm;color:var(--fg);
+  letter-spacing:-.3pt}
+.chnum{font:600 8.5pt/1 var(--mono);color:var(--mint);letter-spacing:.2em;
+  text-transform:uppercase;margin-bottom:2.5mm}
+h3{font:600 13pt/1.3 var(--sans);margin:7mm 0 2mm;color:var(--fg)}
+h4{font:600 10.5pt/1.3 var(--sans);margin:5mm 0 1.5mm;color:var(--cyan)}
+.sec{break-before:page;padding-top:1mm}
+p{margin:0 0 2.6mm;max-width:172mm}
+ul,ol{margin:0 0 3mm;padding-left:6mm;max-width:172mm}
+li{margin-bottom:1.2mm}
+code{font:9.3pt/1.4 var(--mono);background:var(--panel2);color:var(--amber);
+  padding:.4mm 1.1mm;border-radius:2px}
+a{color:var(--cyan);text-decoration:none}
+.lead{color:var(--mut);font-size:11pt;max-width:168mm;margin-bottom:5mm}
+
+/* ---------- command block ---------- */
+pre{font:9pt/1.5 var(--mono);background:var(--panel);border:1px solid var(--line);
+  border-left:2.5px solid var(--mint);border-radius:3px;padding:3mm 3.5mm;
+  margin:0 0 3mm;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;
+  break-inside:avoid}
+pre.out{border-left-color:var(--dim);color:var(--mut);font-size:8.6pt}
+pre.out b{color:var(--fg);font-weight:600}
+pre .p{color:var(--mint);user-select:none}
+pre .t{color:var(--cyan);font-weight:600}
+pre .c{color:var(--dim);font-style:italic}
+pre .s{color:var(--purple)}
+.cap{font:8.6pt/1.4 var(--mono);color:var(--dim);margin:-1.5mm 0 3mm}
+.cap b{color:var(--mut);font-weight:600}
+
+/* ---------- callouts ---------- */
+.box{border:1px solid var(--line);border-radius:3px;padding:3mm 3.5mm;margin:0 0 3.5mm;
+  background:var(--panel);break-inside:avoid}
+.box .lbl{font:700 8pt/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  display:block;margin-bottom:1.8mm}
+.trap{border-left:2.5px solid var(--red)}
+.trap .lbl{color:var(--red)}
+.have{border-left:2.5px solid var(--mint);background:var(--panel2)}
+.have .lbl{color:var(--mint)}
+.note{border-left:2.5px solid var(--cyan)}
+.note .lbl{color:var(--cyan)}
+.real{border-left:2.5px solid var(--amber)}
+.real .lbl{color:var(--amber)}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;margin:0 0 3.5mm;font-size:9pt;
+  break-inside:avoid}
+th{text-align:left;font:600 8.2pt/1.3 var(--mono);text-transform:uppercase;
+  letter-spacing:.09em;color:var(--mint);border-bottom:1px solid var(--line);
+  padding:1.6mm 2mm 1.6mm 0;vertical-align:bottom}
+td{padding:1.6mm 2mm 1.6mm 0;border-bottom:1px solid #22272e;vertical-align:top;
+  color:var(--fg)}
+td.m,th.m{font-family:var(--mono);font-size:8.6pt}
+td.n{color:var(--mut)}
+tr:last-child td{border-bottom:none}
+
+/* ---------- toc ---------- */
+.toc{break-after:page}
+.toc ol{list-style:none;padding:0;counter-reset:t}
+.toc li{counter-increment:t;padding:1.5mm 0;border-bottom:1px solid #22272e;
+  display:flex;gap:4mm;max-width:172mm}
+.toc li::before{content:counter(t,decimal-leading-zero);font:600 9pt/1.6 var(--mono);
+  color:var(--mint);min-width:7mm}
+.toc b{font-weight:600}
+.toc span{color:var(--mut);font-size:9.3pt}
+.toc .sub{color:var(--dim);font-size:9pt;padding-left:11mm;border-bottom:none}
+hr{border:none;border-top:1px solid var(--line);margin:6mm 0}
+.tag{font:600 7.6pt/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+  padding:1mm 1.6mm;border-radius:2px;background:var(--panel2);color:var(--mut);
+  border:1px solid var(--line);white-space:nowrap}
+.tag.free{color:var(--mint);border-color:#1f6f36}
+.tag.act{color:var(--amber);border-color:#6b5112}
+.tag.pas{color:var(--cyan);border-color:#1f4d7a}
+</style></head><body>
+
+<div class="pg">
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <div class="kick">Internal &middot; Onboarding</div>
+  <h1>Manual Recon<br>Field Guide</h1>
+  <h2>Working a domain by hand, from a bare apex to a ranked target list and into
+      the authenticated surface &mdash; with the ways each step lies to you.</h2>
+  <div class="meta">
+    target platform &nbsp;<b>Kali Linux</b><br>
+    tooling &nbsp;<b>free and open-source only &mdash; no keys, no accounts</b><br>
+    worked examples &nbsp;<b>portswigger.net</b> (passive) &middot;
+                          <b>ginandjuice.shop</b> (active)<br>
+    revision &nbsp;<b>1.0 &middot; 24 November 2026</b>
+  </div>
+</div>
+
+<!-- ===================== HOW TO USE ===================== -->
+<div class="sec">
+<div class="chnum">Front matter</div>
+<h2 class="ch">How to use this guide</h2>
+<p class="lead">Read it once end to end. After that it is a lookup: each phase is
+self-contained, and the checklist on the last page is what you will actually use
+on the second engagement onwards.</p>
+
+<h3>What this is</h3>
+<p>A manual methodology. Every command here you type yourself, on a Kali box, with
+tools that cost nothing and need no account. Nothing in this guide depends on our
+automation &mdash; that exists (see the appendix) and it is faster, but a tool you
+cannot reproduce by hand is a tool you cannot debug, extend or defend in a report.</p>
+
+<h3>What it is not</h3>
+<p>It is not an exploitation manual. It stops where recon stops: you will finish
+with an inventory, a fingerprint per host, a set of verified leads and a ranked
+list of what to attack and why. Turning a lead into a finding is the next
+document.</p>
+
+<h3>The tags on each chapter heading</h3>
+<table>
+<tr><th style="width:22%">Tag</th><th>What it means for you</th></tr>
+<tr><td><span class="tag pas">passive</span></td>
+    <td>Every query goes to a third party &mdash; a certificate log, a passive-DNS
+        service, an archive. <b>No packet reaches the target</b>, so you can run
+        it before authorisation lands.</td></tr>
+<tr><td><span class="tag act">active</span></td>
+    <td>Sends traffic to the target. Authorisation must already be in place, and
+        the host must be in scope.</td></tr>
+<tr><td><span class="tag free">keyless</span></td>
+    <td>Needs no account, no API key and no licence. Everything in this guide is
+        tagged keyless; where a key would buy you more, the text says so.</td></tr>
+</table>
+<div class="box note"><span class="lbl">One word, two meanings &mdash; watch this</span>
+<p>"Passive" in this guide means <i>nothing reaches the target</i>. Our own
+<code>candor.py</code> used to call its default tier <code>passive</code> too,
+and that tier probes HTTP on every host it finds, fetches every JavaScript
+asset and collects staff names. It is now called <code>light</code>, and it
+prints what it sends at startup. If you meet an older copy, or any other tool
+using the word, check what the tier actually does before you run it on a client
+pre-authorisation.</p></div>
+
+<h3>The three things on every page</h3>
+<table>
+<tr><th style="width:26%">Element</th><th>What it means</th></tr>
+<tr><td class="m" style="color:var(--mint)">$ command</td>
+    <td>Type this. Written for bash on Kali. Long flags are spelled out so you can
+        read what they do rather than memorise them.</td></tr>
+<tr><td class="m" style="color:var(--dim)">output</td>
+    <td>What a good result looks like. Every sample in this guide was captured
+        live against the stated target on 24 November 2026 unless it is explicitly
+        labelled otherwise.</td></tr>
+<tr><td><span class="tag" style="color:var(--red);border-color:#7d1f1c">TRAP</span></td>
+    <td>How this step lies to you. This is the part you cannot get from a blog
+        post, and it is the reason the guide is this long.</td></tr>
+</table>
+
+<h3>A note on the examples</h3>
+<p>Two targets, both PortSwigger's, chosen so nothing in this document publishes a
+third party's attack surface against their wishes.</p>
+<ul>
+<li><b>portswigger.net</b> carries the <i>passive</i> examples. Every passive query
+in this guide hits a third-party aggregator &mdash; a certificate log, a passive-DNS
+service, a web archive &mdash; and never the target itself. No packet in chapter 2
+reaches portswigger.net.</li>
+<li><b>ginandjuice.shop</b> carries the <i>active</i> examples. PortSwigger publish
+it as a deliberately vulnerable shop for exactly this purpose.</li>
+</ul>
+<div class="box note"><span class="lbl">Before you point any of this at a real target</span>
+<p>Read the engagement scope first and grep it for the host you are about to touch.
+A host that appears in a target's certificate, asset list or CSP header is very
+often <b>someone else's infrastructure</b> &mdash; a CDN, a status page, a SaaS
+vendor. Findings against it belong to that vendor, not to your client, and probing
+it may be outside your authorisation entirely. The guide will flag this again at
+the point where it bites.</p></div>
+</div>
+
+<!-- ===================== TOC ===================== -->
+<div class="sec toc">
+<div class="chnum">Contents</div>
+<h2 class="ch">What is in here</h2>
+<ol>
+<li><b>How results lie to you</b> <span>&mdash; baselines, blind instruments, and the
+    one rule the rest of the guide depends on</span></li>
+<li><b>Define the target</b> <span>&mdash; apex, registration, nameservers, the
+    networks it lives on</span></li>
+<li><b>Passive asset discovery</b> <span>&mdash; certificate logs, passive DNS,
+    archives; 188 names for portswigger.net and which source actually earned them</span></li>
+<li><b>Resolution and DNS structure</b> <span>&mdash; wildcards, CNAME chains,
+    takeover candidates, and the names you must <i>not</i> throw away</span></li>
+<li><b>HTTP probing and fingerprinting</b> <span>&mdash; what is running, which
+    version, and why the filename beats the fingerprinter</span></li>
+<li><b>TLS and certificates</b> <span>&mdash; SANs as an asset source, and the
+    wildcard that explains an empty result</span></li>
+<li><b>Content discovery</b> <span>&mdash; well-known paths, directory-scoped
+    baselines, fuzzing without fooling yourself</span></li>
+<li><b>Client-side mining</b> <span>&mdash; HTML before JavaScript, source maps,
+    lazy chunks, and classifying object IDs</span></li>
+<li><b>Ports and services</b> <span>&mdash; connect scanning, and proving your
+    network path is honest</span></li>
+<li><b>When the hosting is AWS or Azure</b> <span>&mdash; telling tenant from provider, and what each one lets you send without asking</span></li>
+<li><b>Email and DNS posture</b> <span>&mdash; SPF semantics, the DMARC record in
+    the wrong place, and what 23 TXT records tell you</span></li>
+<li><b>Identity and tenancy</b> <span>&mdash; which identity provider, which
+    tenant, which federation endpoint</span></li>
+<li><b>Authenticated recon</b> <span>&mdash; branching on what access you were
+    actually given</span></li>
+<li><b>Evidence and note discipline</b> <span>&mdash; recording work so a finding
+    survives someone else reading it</span></li>
+<li><b>Knowing when to stop</b> <span>&mdash; ranking leads, killing dead ones,
+    handing over</span></li>
+</ol>
+<p class="cap">Appendices: <b>A</b> printable checklist &middot; <b>B</b> install
+lines &middot; <b>C</b> glossary &middot; <b>D</b> what we already have built</p>
+</div>
+
+<!-- ===================== CH 1: LIES ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 1</div>
+<h2 class="ch">How results lie to you</h2>
+<p class="lead">This chapter is first because every later command depends on it. The
+failure mode of recon is not missing a host. It is <b>believing a result your tool
+could never have produced correctly</b> &mdash; and clean output looks identical
+either way.</p>
+
+<h3>The one rule</h3>
+<div class="box have"><span class="lbl">Rule</span>
+<p style="font-size:11.5pt"><b>An absence is only evidence if your instrument could
+have shown you the presence.</b></p>
+<p>Before you write "no SPF record", "no subdomains", "that endpoint does not
+exist" or "the port is closed", answer one question: if the thing <i>were</i>
+there, would this exact command have shown it to me? If you cannot answer yes,
+you have not got a negative result. You have got no result.</p></div>
+
+<p>The practical form of that rule is a <b>baseline</b>: before you believe what a
+server says about a thing that exists, find out what it says about a thing that
+cannot possibly exist.</p>
+
+<h4>Baseline a web server before you believe any path</h4>
+<pre><span class="p">$</span> <span class="t">curl</span> -s -o /dev/null -w <span class="s">"%{http_code} %{size_download}B %{content_type}\n"</span> \
+    https://ginandjuice.shop/recon-baseline-$RANDOM$RANDOM</pre>
+<p>Anything that invented path returns is what the server returns for
+<i>everything</i>. A 200 means content discovery on that host is meaningless until
+you account for it. A 403 means the same in the other direction.</p>
+
+<h4>The live example: the baseline that was taken at the wrong place</h4>
+<p>Four invented paths on the same host, same command, same minute:</p>
+<pre class="out">/recon-baseline-41398257        <b>404</b>   7350B   text/html; charset=utf-8
+/catalog/recon-baseline-17724   <b>404</b>   7368B   text/html; charset=utf-8
+/api/recon-baseline-90031       <b>404</b>   7350B   text/html; charset=utf-8
+/my-account/recon-baseline-5512 <b>200</b>   <b>7506B</b>   text/html; charset=utf-8</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<div class="box trap"><span class="lbl">Trap &mdash; a catch-all scoped to a mount point</span>
+<p>The host answers an honest <b>404</b> at the root, and <b>200</b> for anything
+under <code>/my-account/</code>. If you baseline once at <code>/</code> and then
+fuzz <code>/my-account/</code>, every single word in your wordlist comes back as a
+discovered endpoint. Hundreds of findings, all of them the same page.</p>
+<p><b>So:</b> baseline <i>per directory</i>, not per host. One probe at the root
+tells you about the root. This is not a rare configuration &mdash; any SPA or app
+mounted on a subpath does it, and it cost us real false positives in our own
+tooling the week this guide was written.</p></div>
+
+<h3>The six ways a recon result goes wrong</h3>
+
+<h4>1. Your resolver is blind</h4>
+<p>A hardcoded public resolver that cannot be reached returns nothing, and nothing
+is indistinguishable from "the record does not exist".</p>
+<pre><span class="p">$</span> <span class="c"># prove the resolver answers for THIS domain before trusting any negative</span>
+<span class="p">$</span> <span class="t">dig</span> +short NS portswigger.net @1.1.1.1
+<span class="p">$</span> <span class="c"># empty? the resolver is the problem, not the domain. Fall back:</span>
+<span class="p">$</span> <span class="t">grep</span> nameserver /etc/resolv.conf</pre>
+<div class="box trap"><span class="lbl">Trap</span>
+<p>On a corporate network, outbound UDP/53 to <code>1.1.1.1</code> and
+<code>8.8.8.8</code> is frequently blocked. Every DNS query times out, your notes
+record "no SPF, no DMARC, no MX" for a domain that has all three, and the only
+symptom is that the step took 80 seconds instead of two.</p>
+<p><b>Positive control:</b> query a record you know exists &mdash; the apex
+<code>NS</code> &mdash; and only proceed when it comes back.</p></div>
+
+<h4>2. Wildcard DNS makes every name resolve</h4>
+<pre><span class="p">$</span> <span class="t">dig</span> +short this-name-cannot-exist-9183.example.com
+<span class="p">$</span> <span class="c"># and to tell NXDOMAIN apart from a dead resolver, which +short cannot:</span>
+<span class="p">$</span> <span class="t">dig</span> +noall +comments this-name-cannot-exist-9183.example.com \
+    | <span class="t">grep</span> -o <span class="s">'status: [A-Z]*'</span></pre>
+<p>If the first returns an address, the zone has a wildcard and your 4,000-name
+permutation list will "resolve" in full. Resolve a few random names first; subtract
+the wildcard answer from every result.</p>
+
+<h4>3. A wildcard <i>certificate</i> makes certificate logs useless</h4>
+<pre class="out">$ openssl s_client -connect ginandjuice.shop:443 ... | openssl x509 -ext subjectAltName
+X509v3 Subject Alternative Name:
+    DNS:ginandjuice.shop, <b>DNS:*.ginandjuice.shop</b></pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<div class="box trap"><span class="lbl">Trap</span>
+<p>Certificate transparency for <code>ginandjuice.shop</code> returns exactly
+<b>two</b> names: the apex and the wildcard. That is not evidence the site has no
+subdomains &mdash; it is evidence they bought one certificate that covers all of
+them. A wildcard converts your best passive source into a source that structurally
+cannot help, and it says so only if you look at the certificate.</p></div>
+
+<h4>4. A dead or throttled source returns a silent zero</h4>
+<pre class="out">crt.sh             44 names
+certspotter        59 names
+hackertarget       38 names
+rapiddns            9 names
+subdomain.center  176 names
+<b>otx              HTTP 429  &mdash; 0 names</b>
+wayback-cdx         4 names</pre>
+<p class="cap"><b>captured:</b> seven keyless sources, portswigger.net, 24 Nov 2026</p>
+<p>That <code>429</code> is the interesting line. Had the script printed only
+counts, OTX would have read as "nothing there". Always surface the HTTP status of
+every source, and treat a non-200 as <b>untested</b>, never as empty.</p>
+
+<h4>5. Rate limiting arrives as HTTP 200</h4>
+<p>Plenty of stacks answer a throttled request with <code>200 OK</code> and a body
+saying "too many requests". If you are only looking at status codes you will read
+a wall of successes. Check bodies and response times, not just codes.</p>
+
+<h4>6. Something between you and the target forges answers</h4>
+<p>Some middleboxes and consumer routers answer <code>SYN</code> on selected ports
+for <i>any</i> destination, including addresses that cannot be routed. The cure is
+a canary: scan an address reserved for documentation, which can never answer.</p>
+<pre><span class="p">$</span> <span class="c"># 192.0.2.1 is TEST-NET-1 (RFC 5737). Nothing is there. Ever.</span>
+<span class="p">$</span> <span class="t">nmap</span> -Pn -p 22,80,443,2000,5060,8080 192.0.2.1</pre>
+<p>Whatever port list you intend to scan the target with, canary <b>that exact
+list</b>. A canary over six ports tells you nothing about the other 994 you are
+about to scan, and 2000 and 5060 belong in every list &mdash; those are the two
+this network forges.</p>
+<p>Any port that reports open on that address is being forged by your own network
+path. Subtract those ports from every scan result for the rest of the engagement,
+and write down which ones they were.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>A resolver you have proved answers for this domain.</li>
+<li>A note of whether the zone has wildcard DNS.</li>
+<li>A canary result listing any ports your network path forges.</li>
+<li>The habit of baselining per directory before believing a path.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 2: DEFINE TARGET ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 2 &nbsp;<span class="tag pas">passive</span></div>
+<h2 class="ch">Define the target</h2>
+<p class="lead">Ten minutes that stop you spending a day on the wrong estate. You
+are establishing what the apex is, who registered it, who runs its DNS, and which
+networks it occupies.</p>
+
+<h3>Registration, via RDAP not whois</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -sL https://rdap.org/domain/portswigger.net | <span class="t">jq</span> <span class="s">'{
+    handle, status,
+    registrar: [.entities[]? | select(.roles[]?=="registrar") | .vcardArray[1][][]? ]
+      | map(select(type=="string")) | unique,
+    events: [.events[]? | {(.eventAction): .eventDate}]
+  }'</span></pre>
+<p>RDAP is JSON, so it is greppable and scriptable; <code>whois</code> output
+format varies per registry and will break your parsing. <code>rdap.org</code>
+redirects to the authoritative server for the TLD, so one URL works everywhere.</p>
+<p>What you want from it: creation date (a domain registered three weeks ago that
+looks like the client's brand is a phishing domain, not an asset), expiry, status
+codes such as <code>clientTransferProhibited</code>, and the registrar.</p>
+
+<h3>Nameservers tell you who to ask and who they trust</h3>
+<pre><span class="p">$</span> <span class="t">dig</span> +short NS portswigger.net</pre>
+<pre class="out">ns-573.awsdns-07.<b>net</b>
+ns-1337.awsdns-39.<b>org</b>
+ns-1955.awsdns-52.<b>co.uk</b>
+ns-194.awsdns-24.<b>com</b></pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<p>Route 53, and deliberately spread across four TLDs so that one TLD outage
+cannot take the zone offline. That tells you the DNS is professionally run, and it
+tells you where a zone transfer attempt would go.</p>
+
+<h4>Always try the zone transfer. It takes four seconds.</h4>
+<pre><span class="p">$</span> <span class="t">for</span> ns in $(dig +short NS portswigger.net); <span class="t">do</span>
+      dig +noall +answer AXFR portswigger.net @$ns | head -5
+  <span class="t">done</span></pre>
+<p>It will almost always fail. When it does not, you have the entire zone in one
+request and the rest of chapter 3 is unnecessary.</p>
+
+<h3>Which networks does it live on</h3>
+<pre><span class="p">$</span> <span class="t">dig</span> +short A portswigger.net | <span class="t">while read</span> ip; <span class="t">do</span>
+      echo -n <span class="s">"$ip  "</span>
+      curl -s <span class="s">"https://rdap.org/ip/$ip"</span> | jq -r <span class="s">'"\(.name)  \(.country)  \(.handle)"'</span>
+  <span class="t">done</span></pre>
+<p>Group hosts by the network they sit in. A host on the client's own allocation is
+theirs to defend; a host on a cloud provider's shared range may be a managed
+service where the finding belongs to the provider. This grouping is also how you
+spot the origin server hiding behind a CDN &mdash; one host in a different ASN to
+all the others is almost always the real backend.</p>
+
+<div class="box note"><span class="lbl">Scope, at the only point it matters</span>
+<p>You now have a list of networks. Check each one against the engagement scope
+<i>before</i> chapter 5 starts sending requests. Shared cloud ranges and
+third-party SaaS hosts are the two things that get people in trouble, and both
+appear in an asset list that looks entirely like the client's.</p></div>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>The apex, its registration dates and status.</li>
+<li>The authoritative nameservers, and a zone-transfer attempt on each.</li>
+<li>Apex addresses mapped to networks and countries.</li>
+<li>A scope decision per network, made before you sent any traffic.</li>
+</ul></div>
+</div>
+<!-- ===================== CH 3: PASSIVE DISCOVERY ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 3 &nbsp;<span class="tag pas">passive</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Passive asset discovery</h2>
+<p class="lead">Every query in this chapter goes to a third-party aggregator, never
+to the target. You can run all of it before authorisation lands, and the target
+sees nothing. It is also where most people stop too early &mdash; they run one
+source and move on.</p>
+
+<h3>Certificate transparency</h3>
+<p>Every publicly trusted certificate is logged. Those logs are searchable, and a
+certificate is issued for a hostname, so the logs are a hostname index.</p>
+<pre><span class="p">$</span> <span class="c"># crt.sh - returns JSON, one object per certificate</span>
+<span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://crt.sh/?q=%25.portswigger.net&output=json'</span> \
+    | <span class="t">jq</span> -r <span class="s">'.[].name_value'</span> | <span class="t">tr</span> <span class="s">'\n'</span> <span class="s">' '</span> | <span class="t">tr</span> <span class="s">' '</span> <span class="s">'\n'</span> \
+    | <span class="t">sed</span> <span class="s">'s/^\*\.//'</span> | <span class="t">grep</span> -i portswigger.net | <span class="t">sort</span> -u</pre>
+<pre><span class="p">$</span> <span class="c"># certspotter - second CT source, different index, no key for modest volume</span>
+<span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://api.certspotter.com/v1/issuances?domain=portswigger.net&include_subdomains=true&expand=dns_names'</span> \
+    | <span class="t">jq</span> -r <span class="s">'.[].dns_names[]'</span> | <span class="t">sed</span> <span class="s">'s/^\*\.//'</span> | <span class="t">sort</span> -u</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; crt.sh caps the query inside the database</span>
+<p>Large domains hit an internal row limit and <i>which</i> rows survive is
+effectively arbitrary. If your result is a suspiciously round number near ten
+thousand, you have a sample, not the history. Narrow the query (per subdomain, or
+by date) and run it repeatedly rather than trusting one pull.</p>
+<p>Separately: a <b>wildcard certificate</b> means CT knows only
+<code>*.example.com</code>. See chapter 1 &mdash; an empty CT result is sometimes a
+statement about the certificate, not the estate.</p></div>
+
+<h3>Passive DNS and scraped indexes</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://api.hackertarget.com/hostsearch/?q=portswigger.net'</span>   <span class="c"># host,ip CSV</span>
+<span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://api.subdomain.center/?domain=portswigger.net'</span> | <span class="t">jq</span> -r <span class="s">'.[]'</span>
+<span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://rapiddns.io/subdomain/portswigger.net?full=1'</span> \
+    | <span class="t">grep</span> -oP <span class="s">'(?&lt;=&gt;)[a-z0-9_.\-]+\.portswigger\.net(?=&lt;)'</span> | <span class="t">sort</span> -u
+<span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://otx.alienvault.com/api/v1/indicators/domain/portswigger.net/passive_dns'</span> \
+    | <span class="t">jq</span> -r <span class="s">'.passive_dns[].hostname'</span> | <span class="t">sort</span> -u</pre>
+
+<h3>Web archives &mdash; URLs, not just hostnames</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://web.archive.org/cdx/search/cdx?url=*.portswigger.net/*&output=text&fl=original&collapse=urlkey&limit=20000'</span> \
+    | <span class="t">tee</span> urls-archive.txt \
+    | <span class="t">awk</span> -F/ <span class="s">'{print $3}'</span> | <span class="t">sort</span> -u &gt;&gt; raw-names.txt</pre>
+<p>The archive is the only source here that gives you <b>paths</b>. Keep the full
+URL list; chapter 7 uses it as a wordlist that is specific to this target, which
+beats any generic list.</p>
+
+<h3>Write them down &mdash; every later chapter reads these files</h3>
+<p>Nothing above redirects to a file. Add <code>| tee -a raw-names.txt</code>
+to each source command, then build the one file the rest of the guide
+consumes:</p>
+<pre><span class="p">$</span> <span class="c"># one directory per engagement</span>
+<span class="p">$</span> <span class="t">export</span> D=portswigger.net; <span class="t">mkdir</span> -p ~/eng/$D &amp;&amp; <span class="t">cd</span> ~/eng/$D
+<span class="p">$</span> <span class="c"># one bare hostname per line, in-domain only, sorted</span>
+<span class="p">$</span> <span class="t">tr</span> '[:upper:]' '[:lower:]' &lt; raw-names.txt \
+    | <span class="t">sed</span> 's/^[*][.]//; s/[.]$//' \
+    | <span class="t">grep</span> -E "(^|[.])${D//./[.]}$" \
+    | <span class="t">sort</span> -u &gt; names-all.txt
+<span class="p">$</span> <span class="t">wc</span> -l names-all.txt</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; one column, or the next chapter breaks</span>
+<p><code>names-all.txt</code> must be <b>bare hostnames, one per line,
+sorted</b>. Keep the which-source-said-what mapping in a separate file. Put
+two columns in this one and <code>dnsx -l</code> reads the annotation as part
+of the hostname, while <code>comm</code> &mdash; which requires sorted input and
+says nothing when it does not get it &mdash; silently reports every name as
+new.</p>
+<pre><span class="p">$</span> <span class="t">sort</span> -u raw-names-with-source.txt &gt; names-sources.tsv</pre>
+</div>
+
+<h3>The result, and why you run all of them</h3>
+<p>Seven sources against <code>portswigger.net</code>, same session:</p>
+<table>
+<tr><th>Source</th><th class="m">In-domain names</th><th class="m">Found only here</th><th class="m">Share of union</th></tr>
+<tr><td class="m">subdomain.center</td><td class="m">176</td><td class="m">134</td><td class="m">94%</td></tr>
+<tr><td class="m">crt.sh</td><td class="m">44</td><td class="m">2</td><td class="m">23%</td></tr>
+<tr><td class="m">hackertarget</td><td class="m">38</td><td class="m">1</td><td class="m">20%</td></tr>
+<tr><td class="m">certspotter</td><td class="m">29</td><td class="m">0</td><td class="m">15%</td></tr>
+<tr><td class="m">rapiddns</td><td class="m">9</td><td class="m">0</td><td class="m">5%</td></tr>
+<tr><td class="m">wayback-cdx</td><td class="m">2</td><td class="m">0</td><td class="m">1%</td></tr>
+<tr><td class="m" style="color:var(--red)">otx</td><td class="m">HTTP 429</td><td class="m">&mdash;</td><td class="m">untested</td></tr>
+<tr><td class="m"><b>union</b></td><td class="m"><b>188</b></td><td></td><td></td></tr>
+</table>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026. "Found only here" is
+set arithmetic, not first-seen order.</p>
+<p>Read that table twice. The source everybody reaches for first, <code>crt.sh</code>,
+covered <b>23%</b> of what was out there and contributed two names nobody else had.
+<code>certspotter</code> contributed nothing crt.sh did not already have. And the
+source that carried 94% of the result is one most people have never configured.</p>
+
+<h3>Now the part nobody measures: how much of it is real</h3>
+<p>Resolve every name you collected, with a wildcard control first.</p>
+<pre><span class="p">$</span> <span class="c"># control: if an impossible name resolves, the zone is a wildcard and</span>
+<span class="p">$</span> <span class="c"># the numbers below are meaningless</span>
+<span class="p">$</span> <span class="c"># +short prints answer data only, so NXDOMAIN and "resolver timed out"</span>
+<span class="p">$</span> <span class="c"># both print NOTHING. Read the status field instead.</span>
+<span class="p">$</span> <span class="t">dig</span> +noall +comments this-cannot-exist-7741923.portswigger.net \
+    | <span class="t">grep</span> -o <span class="s">'status: [A-Z]*'</span>
+<span class="p">$</span> <span class="c"># then resolve the set - A, AAAA and CNAME. An -a-only query</span>
+<span class="p">$</span> <span class="c"># counts AAAA-only and CNAME-only names as if they were dead.</span>
+<span class="p">$</span> <span class="t">dnsx</span> -l names-all.txt -silent -a -aaaa -cname -resp -retry 2 -o resolved.txt
+<span class="p">$</span> <span class="t">awk</span> '{print $1}' resolved.txt | <span class="t">sort</span> -u &gt; names-live.txt
+<span class="p">$</span> <span class="t">comm</span> -23 names-all.txt names-live.txt &gt; vhost-candidates.txt
+<span class="p">$</span> <span class="t">wc</span> -l names-all.txt names-live.txt vhost-candidates.txt</pre>
+<pre class="out">status: <b>NXDOMAIN</b>   &mdash; no wildcard, so the figures below mean something
+188 names collected  |  <b>48 resolve</b>  |  140 NXDOMAIN</pre>
+<p>Cross-referencing which sources reported each name against whether it resolves
+gives a result worth internalising:</p>
+<table>
+<tr><th>Reported by</th><th class="m">Names</th><th class="m">Resolve</th><th class="m">Hit rate</th></tr>
+<tr><td>4&ndash;5 sources</td><td class="m">22</td><td class="m">22</td><td class="m" style="color:var(--mint)">100%</td></tr>
+<tr><td>3 sources</td><td class="m">14</td><td class="m">11</td><td class="m">79%</td></tr>
+<tr><td>2 sources</td><td class="m">15</td><td class="m">4</td><td class="m">27%</td></tr>
+<tr><td>1 source</td><td class="m">137</td><td class="m">11</td><td class="m" style="color:var(--amber)">8%</td></tr>
+</table>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026, 188 names resolved
+against a validated resolver, querying A, AAAA and CNAME</p>
+<div class="box trap"><span class="lbl">Trap &mdash; what this table is not</span>
+<p>These are one domain, on one day, with n=22 in the top bucket. Treat the
+<i>shape</i> as the finding &mdash; corroboration predicts reality &mdash; not the exact
+percentages, and re-measure on your own target rather than quoting these.
+If you resolve with <code>-a</code> alone, every AAAA-only and CNAME-only
+name lands in the "does not resolve" bucket and the hit rates are wrong.</p></div>
+<div class="box real"><span class="lbl">What this means in practice</span>
+<p><b>Corroboration is a quality signal.</b> A name four sources agree on is real,
+every time. A name one source alone reports is live about one time in twelve.
+That is how you triage 188 names into a morning's work instead of a week's.</p>
+<p>Spot-checking the single-source names shows why: alongside
+<code>auth.portswigger.net</code> (real, four sources) sit
+<code>authu</code>, <code>authv</code>, <code>adminq</code>, <code>awsg</code>,
+<code>aie</code>, <code>burpcollaborator1e</code> &mdash; single-character
+mutations of real names, all NXDOMAIN, all from one source. That source has high
+recall and low precision: it is guessing, and it is worth running precisely
+<i>because</i> it guesses, as long as you never report its output as an asset
+without resolving it.</p></div>
+<div class="box trap"><span class="lbl">Trap &mdash; do not delete the 140</span>
+<p>The obvious move is to drop every NXDOMAIN name. Do not. A name in a
+certificate log that does not resolve is the <i>definition</i> of a virtual-host
+candidate or an internal-only host &mdash; the certificate proves somebody
+provisioned it. Eleven of the single-source names did resolve, too. Keep them in a
+<code>vhost-candidates.txt</code> and revisit them in chapter 7; just never call
+them assets.</p></div>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li><code>names-all.txt</code> &mdash; the union, with which sources reported each.</li>
+<li><code>names-live.txt</code> &mdash; the subset that resolves, wildcard-controlled.</li>
+<li><code>vhost-candidates.txt</code> &mdash; the ones that do not, kept deliberately.</li>
+<li><code>urls-archive.txt</code> &mdash; target-specific paths for later.</li>
+<li>A note of every source that errored, marked untested rather than empty.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 4: RESOLUTION ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 4 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Resolution and DNS structure</h2>
+<p class="lead">You now touch the target's DNS, though not its web servers. The goal
+is to turn a name list into a structured picture: which names are live, what they
+point at, and which of those pointers are dangling.</p>
+
+<h3>Resolve, keeping the record type</h3>
+<pre><span class="p">$</span> <span class="t">dnsx</span> -l names-all.txt -silent -a -aaaa -cname -resp -o resolved.txt
+<span class="p">$</span> <span class="c"># or without Go tools, one name at a time:</span>
+<span class="p">$</span> <span class="c"># one qtype per invocation: `dig ... A AAAA CNAME` does NOT query all</span>
+<span class="p">$</span> <span class="c"># three - the last one wins, and you conclude there is no A record.</span>
+<span class="p">$</span> <span class="t">for</span> t in A AAAA CNAME; <span class="t">do</span> dig +noall +answer auth.portswigger.net $t; <span class="t">done</span></pre>
+<div class="box trap"><span class="lbl">Trap &mdash; A-only queries hide v6-only hosts</span>
+<p>The default in most pipelines is an <code>A</code> lookup. A host with only an
+<code>AAAA</code> record is then classified as dead. Query both. If you have no
+working IPv6 path from your box, record those hosts as <b>untested</b> &mdash; not
+as down, and not as up.</p></div>
+
+<h3>Follow every CNAME to its end</h3>
+<pre><span class="p">$</span> <span class="t">dig</span> +short CNAME status.example.com
+<span class="p">$</span> <span class="c"># chase the whole chain, which can be three or four hops</span>
+<span class="p">$</span> <span class="t">dig</span> +trace +nodnssec status.example.com | <span class="t">tail</span> -20</pre>
+<p>Where the chain ends matters more than where it starts. A CNAME into a cloud
+provider that no longer has the resource behind it is a <b>subdomain takeover</b>:
+you register the resource, and the target's hostname serves your content.</p>
+<pre><span class="p">$</span> <span class="c"># the three-part test for a takeover candidate</span>
+<span class="p">$</span> <span class="t">dig</span> +short CNAME sub.target.com          <span class="c"># 1. points at a third party?</span>
+<span class="p">$</span> <span class="t">dig</span> +short A $(dig +short CNAME sub.target.com)   <span class="c"># 2. target dead?</span>
+<span class="p">$</span> <span class="t">curl</span> -is https://sub.target.com | <span class="t">head</span> -30   <span class="c"># 3. provider error page?</span></pre>
+<p>All three must hold. The provider's "no such bucket / no such app / domain not
+configured" page is the confirmation; a CNAME alone is not.</p>
+<div class="box trap"><span class="lbl">Trap &mdash; NS delegation takeover leaves no record to find</span>
+<p>If a subzone is delegated to nameservers that no longer host it, querying
+<code>NS sub.target.com</code> through a recursive resolver returns
+<code>SERVFAIL</code> and nothing to inspect. You have to ask the <i>parent</i>
+directly, without recursion:</p>
+<pre style="margin-top:2mm"><span class="p">$</span> <span class="t">dig</span> +norecurse NS sub.target.com @$(dig +short NS target.com | head -1)</pre>
+<p>This class is rated the highest-impact takeover variant and almost no tool
+reports it, because the recursive answer looks like a plain failure.</p></div>
+
+<h3>Permutation, only once you have a wildcard answer</h3>
+<pre><span class="p">$</span> <span class="c"># build a label list from what you already found, then permute</span>
+<span class="p">$</span> <span class="t">cut</span> -d. -f1 names-live.txt | <span class="t">sort</span> -u &gt; labels.txt
+<span class="p">$</span> <span class="t">for</span> l in $(cat labels.txt); <span class="t">do</span>
+      <span class="t">for</span> env in dev staging uat test qa sandbox preview internal admin; <span class="t">do</span>
+        echo <span class="s">"$l-$env.target.com"</span>; echo <span class="s">"$env-$l.target.com"</span>
+      <span class="t">done</span>
+  <span class="t">done</span> | <span class="t">sort</span> -u &gt; permutations.txt</pre>
+<p>Permutation against a wildcard zone produces thousands of "live" hosts and
+teaches you nothing. Run the wildcard control from chapter 1 first; if the zone
+wildcards, skip this entirely and say so in your notes.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Each live name with its address family and full CNAME chain.</li>
+<li>A takeover candidate list where all three conditions were checked.</li>
+<li>A parent-side delegation check on any subzone that SERVFAILs.</li>
+<li>Hosts grouped by address &mdash; one IP serving forty names is one target.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 5: HTTP ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 5 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">HTTP probing and fingerprinting</h2>
+<p class="lead">First contact with the application. You want, per host: does it
+answer, on which schemes, what is it, which version, and what does the response
+leak for free.</p>
+
+<h3>Probe both schemes, keep the redirect chain</h3>
+<pre><span class="p">$</span> <span class="t">httpx</span> -l names-live.txt -silent -sc -title -tech-detect -server \
+    -location -cl -ip -o http-probe.txt</pre>
+<pre><span class="p">$</span> <span class="c"># by hand, and what you should actually read:</span>
+<span class="p">$</span> <span class="t">curl</span> -sSi https://ginandjuice.shop/ | <span class="t">head</span> -20</pre>
+<pre class="out">HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 10487
+Connection: close
+Set-Cookie: session=jKPPeHNnYbzZH3Zg6doMiA8R0MwXflMP; Path=/; <b>Secure; HttpOnly; SameSite=None</b>
+<b>X-Backend: b691dfa1-d265-40de-bc58-96dda3ad4c4c</b>
+X-Frame-Options: SAMEORIGIN</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<p>Three things in seven lines:</p>
+<ul>
+<li><code>X-Backend</code> is a backend instance identifier. Collect it across many
+requests &mdash; it tells you how many backends there are, whether the load
+balancer is sticky, and gives you a way to tell which instance answered when
+behaviour differs between requests.</li>
+<li><code>SameSite=None</code> on the session cookie means the browser will send it
+on cross-site requests. That is a prerequisite for CSRF, and it is a deliberate
+choice someone made.</li>
+<li>What is <i>absent</i>: no <code>Strict-Transport-Security</code>, no
+<code>Content-Security-Policy</code>, no <code>X-Content-Type-Options</code>.
+Absence here is safe to assert &mdash; you have the full header block in front of
+you, so your instrument could have shown the presence.</li>
+</ul>
+
+<h3>Version numbers: read the filenames, not the fingerprinter</h3>
+<p>An automated fingerprint of that homepage returns:</p>
+<pre class="out">tech: ["React", "Angular"]        versions: {}</pre>
+<p>Which is true and nearly useless. The script tags say considerably more:</p>
+<pre class="out">/resources/js/<b>react.development.js</b>             200   109,909 B
+/resources/js/<b>react-dom.development.js</b>         200 1,077,021 B
+/resources/js/<b>angular_1-7-7.js</b>                 200   195,161 B
+/resources/js/subscribeNow.js                   200     3,739 B
+/resources/footer/js/scanme.js                  200     6,307 B</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<div class="box real"><span class="lbl">Two findings the fingerprinter missed</span>
+<ul>
+<li><b>React development builds in production.</b> The <code>.development.js</code>
+bundles ship verbose errors, component names and internal warnings, and they are
+roughly ten times the size of the production build. That is both an information
+leak and a performance defect, and it is visible in the filename.</li>
+<li><b>AngularJS 1.7.7.</b> AngularJS went end-of-life in January 2022 &mdash; no
+further security patches exist. A pinned, EOL, client-side framework is a
+dependency finding on its own, and AngularJS specifically brings client-side
+template injection into scope wherever user input reaches an interpolated
+expression.</li>
+</ul></div>
+<p>So: always list the script sources and read them. A version in a filename or a
+query string is the cheapest fingerprint you will ever get.</p>
+<pre><span class="p">$</span> <span class="t">curl</span> -s https://ginandjuice.shop/ \
+    | <span class="t">grep</span> -oP <span class="s">'(?&lt;=src=")[^"]+'</span> | <span class="t">sort</span> -u</pre>
+
+<h3>Methods and CORS, in two requests</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s -o /dev/null -D - -X OPTIONS https://ginandjuice.shop/ | <span class="t">head</span> -5
+<span class="p">$</span> <span class="t">curl</span> -s -o /dev/null -D - -H <span class="s">'Origin: https://recon-probe.example'</span> \
+    https://ginandjuice.shop/ | <span class="t">grep</span> -i access-control</pre>
+<pre class="out">HTTP/1.1 <b>405</b> Method Not Allowed
+Allow: <b>GET</b>
+
+(no Access-Control-* headers returned)</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<p><code>Allow: GET</code> from a 405 is a free method inventory. When you do find
+a permissive CORS policy, check whether it reflects <i>arbitrary</i> origins and
+whether <code>Access-Control-Allow-Credentials</code> is set &mdash; a wildcard
+origin without credentials is usually inert.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Status, title, server, redirect target and content length per host.</li>
+<li>The complete response header block for each interesting host, saved raw.</li>
+<li>A technology list with <i>versions</i>, taken from filenames and paths.</li>
+<li>Allowed methods, and a CORS reflection test per API-looking host.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 6: TLS ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 6 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">TLS and certificates</h2>
+<p class="lead">The certificate is an asset list the target hands you on
+connection, and it is authoritative in a way passive sources are not.</p>
+
+<pre><span class="p">$</span> <span class="t">echo</span> | <span class="t">openssl</span> s_client -connect portswigger.net:443 -servername portswigger.net 2&gt;/dev/null \
+    | <span class="t">openssl</span> x509 -noout -subject -issuer -dates -ext subjectAltName</pre>
+<pre class="out">subject=CN=portswigger.net
+issuer=C=US, O=Amazon, CN=Amazon RSA 2048 M01
+notBefore=Jul 18 00:00:00 2026 GMT
+notAfter=Jan 31 23:59:59 2027 GMT
+X509v3 Subject Alternative Name:
+    DNS:portswigger.net</pre>
+<pre class="out">subject=CN=ginandjuice.shop
+issuer=C=US, O=Amazon, CN=Amazon RSA 2048 M01
+notBefore=Oct 24 00:00:00 2026 GMT
+notAfter=May  9 23:59:59 2027 GMT
+X509v3 Subject Alternative Name:
+    DNS:ginandjuice.shop, <b>DNS:*.ginandjuice.shop</b></pre>
+<p class="cap"><b>captured:</b> both targets, 24 Nov 2026</p>
+
+<h3>Read it as four separate signals</h3>
+<table>
+<tr><th style="width:24%">Field</th><th>What it tells you</th></tr>
+<tr><td class="m">subjectAltName</td><td>Every name this certificate covers. On
+shared infrastructure a SAN list routinely contains dozens of unrelated hostnames
+&mdash; and those are the <b>other tenants</b>, which are not your scope.</td></tr>
+<tr><td class="m">issuer</td><td>The CA, and by extension the platform. Amazon-issued
+certificates mean ACM, which means the host sits behind an AWS load balancer or
+CloudFront, which tells you the origin is elsewhere.</td></tr>
+<tr><td class="m">notAfter</td><td>Expiry. A certificate expiring in days on a
+production host is an availability finding. Long-past-expiry on a host that still
+answers suggests something nobody is watching.</td></tr>
+<tr><td class="m">wildcard</td><td>A <code>*.</code> entry explains a thin CT
+result (chapter 1) and means the operator can stand up new hostnames without
+appearing in any log at all.</td></tr>
+</table>
+
+<h3>Harvest SANs across every live host</h3>
+<pre><span class="p">$</span> <span class="t">while read</span> h; <span class="t">do</span>
+      echo | timeout 8 openssl s_client -connect <span class="s">"$h:443"</span> -servername <span class="s">"$h"</span> 2&gt;/dev/null \
+        | openssl x509 -noout -ext subjectAltName 2&gt;/dev/null \
+        | grep -oP <span class="s">'DNS:\K[^,]+'</span>
+  <span class="t">done</span> &lt; names-live.txt | <span class="t">sed</span> <span class="s">'s/^\*\.//'</span> | <span class="t">sort</span> -u &gt; san-names.txt
+<span class="p">$</span> <span class="t">comm</span> -13 names-all.txt san-names.txt   <span class="c"># names ONLY the certificates knew</span></pre>
+<p>That final <code>comm</code> is the point of the exercise: it prints hostnames
+no passive source gave you. Feed them back into chapter 4 and resolve them.</p>
+<div class="box trap"><span class="lbl">Trap &mdash; the SAN list is not the client's asset list</span>
+<p>On a shared load balancer or a multi-tenant platform, the certificate covers
+every tenant on that listener. Harvesting SANs will hand you other companies'
+hostnames that sit in the same cloud account as your target. They look like
+discoveries. Resolve them, check who they belong to, and keep only the ones inside
+the engagement's scope.</p></div>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Issuer, validity window and full SAN list per live host.</li>
+<li>Any wildcard noted, with its consequence for your CT results written down.</li>
+<li><code>san-names.txt</code> diffed against the passive union, new names resolved.</li>
+<li>Out-of-scope tenant names identified and set aside, not probed.</li>
+</ul></div>
+</div>
+<!-- ===================== CH 7: CONTENT DISCOVERY ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 7 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Content discovery</h2>
+<p class="lead">Finding paths the application does not link to. This is the phase
+that generates the most false positives in the whole engagement, and the reason is
+always the same: nobody baselined.</p>
+
+<h3>Step one, always: the files that are meant to be there</h3>
+<pre><span class="p">$</span> <span class="t">for</span> p in robots.txt sitemap.xml .well-known/security.txt security.txt \
+         crossdomain.xml .well-known/openid-configuration \
+         .well-known/change-password .well-known/assetlinks.json; <span class="t">do</span>
+      printf <span class="s">'%-42s '</span> <span class="s">"$p"</span>
+      curl -s -o /dev/null -w <span class="s">'%{http_code} %{size_download}B\n'</span> <span class="s">"https://ginandjuice.shop/$p"</span>
+  <span class="t">done</span></pre>
+<pre class="out">robots.txt                                 <b>404</b>   7350B
+sitemap.xml                                <b>404</b>   7350B
+.well-known/security.txt                   <b>404</b>   7350B
+security.txt                               <b>404</b>   7350B
+.git/config                                <b>404</b>   7350B
+.env                                       <b>404</b>   7350B
+crossdomain.xml                            <b>404</b>   7350B
+.well-known/openid-configuration           <b>404</b>   7350B</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<p>Note the uniform <b>7350 bytes</b>. That is this host's 404 page, and it is now
+your reference value &mdash; any path returning 404/7350 is simply absent. Had one
+of those rows come back 404 with a <i>different</i> length, that difference would
+be worth a look.</p>
+<div class="box note"><span class="lbl">Read robots.txt as a wish list, not a map</span>
+<p>When it exists, <code>Disallow</code> entries are paths the operator
+specifically wanted kept out of search results. That is a curated list of the
+things they consider sensitive. It is also often stale, pointing at paths that
+moved years ago &mdash; which is useful in its own right.</p></div>
+
+<h3>Step two: baseline per directory</h3>
+<p>Chapter 1 showed why. Before fuzzing any directory, establish what that
+directory says about something that is not there:</p>
+<pre><span class="p">$</span> <span class="t">for</span> d in / /api/ /catalog/ /my-account/ /admin/; <span class="t">do</span>
+      printf <span class="s">'%-16s '</span> <span class="s">"$d"</span>
+      curl -s -o /dev/null -w <span class="s">'%{http_code} %{size_download}B\n'</span> \
+        <span class="s">"https://ginandjuice.shop${d}recon-baseline-$RANDOM$RANDOM"</span>
+  <span class="t">done</span></pre>
+<pre class="out">/                404  7350B
+/api/            404  7350B
+/catalog/        404  7368B
+/my-account/     <b>200  7506B</b>   &larr; everything under here "exists"
+/admin/          404  7350B</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop, 24 Nov 2026</p>
+<p>Record these. Your fuzzing filters come from this table, per directory, and not
+from a global setting.</p>
+
+<h3>Step three: fuzz, with filters derived from the baseline</h3>
+<pre><span class="p">$</span> <span class="c"># pick whichever exists on your box - paths differ between images</span>
+<span class="p">$</span> <span class="t">WORDLIST</span>=$(ls /usr/share/seclists/Discovery/Web-Content/common.txt \
+               /usr/share/wordlists/dirb/common.txt 2&gt;/dev/null | head -1)
+<span class="p">$</span> <span class="t">ffuf</span> -u https://ginandjuice.shop/FUZZ -w "$WORDLIST" \
+    -mc all -fs 7350 -ac -t 20 -rate 40 -o ffuf-root.json</pre>
+<table>
+<tr><th class="m" style="width:16%">Flag</th><th>Why</th></tr>
+<tr><td class="m">-mc all</td><td>Match every status code, then filter. Filtering by
+status throws away 401/403/405 responses, which are the ones that prove a handler
+exists.</td></tr>
+<tr><td class="m">-fs 7350</td><td>Filter by the <i>size</i> you measured. This is the
+baseline doing its job.</td></tr>
+<tr><td class="m">-ac</td><td>Auto-calibration: ffuf works out the noise response
+itself. Use it <i>as well as</i> your own baseline, not instead of.</td></tr>
+<tr><td class="m">-rate 40</td><td>Be polite. A rate limit that triggers mid-run
+corrupts the whole result set, and you will not notice.</td></tr>
+</table>
+<div class="box trap"><span class="lbl">Trap &mdash; throttling that answers 200</span>
+<p>Some stacks answer a rate-limited request with <code>200 OK</code> and a body
+reading "too many requests". With <code>-mc all</code> and a size filter tuned to
+the 404 page, every one of those becomes a hit. Sanity-check a handful of results
+by hand before you believe a long list, and watch the response-time column &mdash;
+a sudden uniform latency is throttling.</p></div>
+
+<h3>Step four: the wordlist that beats every wordlist</h3>
+<p>You already have one specific to this target, from chapter 3:</p>
+<pre><span class="p">$</span> <span class="c"># paths this site actually served at some point in its history</span>
+<span class="p">$</span> <span class="t">awk</span> -F<span class="s">'[/?]'</span> <span class="s">'{for(i=4;i&lt;=NF;i++) printf "%s/", $i; print ""}'</span> urls-archive.txt \
+    | <span class="t">sed</span> <span class="s">'s#/*$##'</span> | <span class="t">sort</span> -u &gt; wordlist-target.txt
+<span class="p">$</span> <span class="t">ffuf</span> -u https://target.com/FUZZ -w wordlist-target.txt -mc all -fs 7350</pre>
+<p>A path the archive saw and the current site no longer links is the highest-yield
+item in content discovery: it was real, nobody references it now, and therefore
+nobody has tested it recently. Confirm it is genuinely unreferenced before you call
+it that &mdash; see the trap in chapter 8.</p>
+
+<h3>Virtual hosts: the names that did not resolve</h3>
+<pre><span class="p">$</span> <span class="c"># ask one IP for every candidate name, via Host header</span>
+<span class="p">$</span> <span class="t">while read</span> h; <span class="t">do</span>
+      <span class="c"># $IP must be an address inside YOUR engagement scope. Never paste an</span>
+      <span class="c"># address out of a guide - the one that used to be here belonged to a</span>
+      <span class="c"># third party. -k is required because the cert will not match $h.</span>
+      code=$(curl -s -o /dev/null -w <span class="s">'%{http_code}:%{size_download}'</span> \
+             -H <span class="s">"Host: $h"</span> --resolve <span class="s">"$h:443:$IP"</span> <span class="s">"https://$h/"</span> -k)
+      echo <span class="s">"$code  $h"</span>
+  <span class="t">done</span> &lt; vhost-candidates.txt | <span class="t">sort</span> | <span class="t">uniq</span> -c | <span class="t">sort</span> -rn</pre>
+<p>Group by response. The common response is the default vhost; anything that
+differs is a site reachable only if you know its name. This is how the 140
+NXDOMAIN names from chapter 3 earn their keep.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>A per-directory baseline table for every host you intend to fuzz.</li>
+<li>Well-known paths checked, with absence asserted only where you saw the 404.</li>
+<li>A target-specific wordlist built from archive URLs.</li>
+<li>Virtual-host probing results for the non-resolving names.</li>
+<li>Every hit verified by hand against its directory baseline before it is a lead.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 8: CLIENT-SIDE ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 8 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Client-side mining</h2>
+<p class="lead">The browser is handed everything it needs to talk to the backend.
+That makes the client a specification of the API. Mine it in the right order,
+though &mdash; most people start with JavaScript and miss the easy half.</p>
+
+<h3>HTML first. Always HTML first.</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s https://ginandjuice.shop/ &gt; home.html
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'(?&lt;=href=")[^"#]+'</span> home.html | <span class="t">grep</span> -v <span class="s">'^\(http\|mailto\|//\)'</span> | <span class="t">sort</span> -u
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'&lt;form[^&gt;]*'</span> home.html
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'(?&lt;=name=")[^"]+'</span> home.html | <span class="t">sort</span> -u   <span class="c"># parameter names</span></pre>
+<pre class="out">/
+/about
+/blog
+<b>/blog/post?postId=3</b>
+<b>/blog/post?postId=4</b>
+/catalog
+/catalog/cart
+<b>/catalog/product?productId=1</b>
+<b>/catalog/product?productId=2</b>
+<b>/catalog/product?productId=3</b>
+/my-account
+/resources/images/icon-account.svg
+/resources/images/icon-cart.svg</pre>
+<p class="cap"><b>captured:</b> ginandjuice.shop homepage, 24 Nov 2026 &mdash; 13
+internal links</p>
+<p>Now the same page's five JavaScript files, run through an endpoint-extraction
+regex:</p>
+<pre class="out">react.development.js        109,909B    <b>0 endpoints</b>
+react-dom.development.js  1,077,021B    <b>0 endpoints</b>
+angular_1-7-7.js            195,161B    <b>0 endpoints</b>
+subscribeNow.js               3,739B    <b>0 endpoints</b>
+scanme.js                     6,307B    <b>0 endpoints</b></pre>
+<div class="box real"><span class="lbl">1.4 MB of JavaScript, zero endpoints. 10 KB of HTML, thirteen.</span>
+<p>This is a server-rendered application. The routes live in HTML links and form
+actions; the JavaScript is vendor libraries. A JS-only mining pass would have
+reported nothing and you would have concluded the app has no API.</p>
+<p>Mine both, every time, and when one comes back empty treat that as information
+about <i>the application's architecture</i> rather than as a dead end.</p></div>
+
+<h3>Classify the identifiers you found</h3>
+<p><code>postId=3</code> and <code>productId=1</code> are sequential integers.
+That single observation ranks the whole target list:</p>
+<table>
+<tr><th style="width:30%">Identifier shape</th><th>What it means for you</th></tr>
+<tr><td class="m">1, 2, 3 &hellip;</td><td>Guessable. Every object is reachable by
+counting. If authorisation is missing anywhere, this is where it shows. <b>Highest
+priority.</b></td></tr>
+<tr><td class="m">UUIDv4</td><td>Not guessable. Only exploitable if an identifier
+leaks from elsewhere &mdash; a list endpoint, another user's export, a notification.</td></tr>
+<tr><td class="m">UUIDv1</td><td>Contains a timestamp and MAC address. Partially
+predictable; worth a second look.</td></tr>
+<tr><td class="m">base64 / hashed</td><td>Decode it first. A base64-wrapped integer
+is an integer.</td></tr>
+</table>
+<pre><span class="p">$</span> <span class="c"># pull every id-looking parameter out of the collected URL set</span>
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'[?&amp;][a-zA-Z_]*(id|Id|ID|uuid|guid|ref|no|num)=[^&amp;"]*'</span> urls-archive.txt \
+    | <span class="t">sort</span> -u | <span class="t">head</span> -40</pre>
+
+<h3>Source maps: the whole original codebase</h3>
+<pre><span class="p">$</span> <span class="c"># 1. the declared one</span>
+<span class="p">$</span> <span class="t">curl</span> -s https://target.com/static/js/main.abc123.js | <span class="t">tail</span> -c 200 | <span class="t">grep</span> sourceMappingURL
+<span class="p">$</span> <span class="c"># 2. the undeclared one - probe the sibling regardless</span>
+<span class="p">$</span> <span class="t">curl</span> -s -o /dev/null -w <span class="s">'%{http_code} %{size_download}\n'</span> \
+    https://target.com/static/js/main.abc123.js.map
+<span class="p">$</span> <span class="c"># 3. confirm by CONTENT, never by status code</span>
+<span class="p">$</span> <span class="t">curl</span> -s https://target.com/static/js/main.abc123.js.map | <span class="t">head</span> -c 120</pre>
+<pre class="out">{"version":3,"sources":["webpack:////srv/app/node_modules/react/index.js", &hellip;</pre>
+<p>A <code>"version":3</code> object with a <code>sources</code> array is the real
+thing. Extract it:</p>
+<pre><span class="p">$</span> <span class="t">curl</span> -s .../main.js.map | <span class="t">jq</span> -r <span class="s">'.sources[]'</span> | <span class="t">sed</span> <span class="s">'s#^webpack:///*##'</span> | <span class="t">sort</span> -u
+<span class="p">$</span> <span class="c"># and the actual file contents, if sourcesContent is present</span>
+<span class="p">$</span> <span class="t">curl</span> -s .../main.js.map \
+    | <span class="t">jq</span> -r <span class="s">'.sources as $s | .sourcesContent | to_entries[] | "=== \($s[.key]) ===\n\(.value)"'</span></pre>
+<div class="box trap"><span class="lbl">Trap &mdash; removing the comment does not remove the file</span>
+<p>Build pipelines commonly strip the <code>sourceMappingURL</code> comment
+<i>after</i> the deploy step has already uploaded the <code>.map</code> to the CDN.
+The map is still served; nothing links to it. Probe the sibling path for every
+asset, and never conclude from a missing comment that there is no map.</p>
+<p>The archive keeps a copy too. A map deleted from the live host last month is
+still retrievable from a web archive &mdash; deleting a source map does not
+un-publish it.</p></div>
+
+<h3>Lazy chunks: the filenames that exist as no string</h3>
+<p>In a webpack build, the admin bundle's URL is not written anywhere. The runtime
+assembles it from two object literals:</p>
+<pre class="out">__webpack_require__.u = id =&gt; "static/js/" + ({1:"admin",2:"billing"}[id])
+                              + "." + {1:"a3f9c1",2:"77be02"}[id] + ".chunk.js"</pre>
+<p>A crawler only ever loads the chunks the pages it visited demanded, so the
+admin and settings chunks are never fetched. Rebuild them by hand:</p>
+<pre><span class="p">$</span> <span class="t">curl</span> -s https://target.com/static/js/runtime.js &gt; rt.js
+<span class="p">$</span> <span class="c"># the two maps: id-&gt;name and id-&gt;hash</span>
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'\{[0-9]+:"[^"]*"(,[0-9]+:"[^"]*")*\}'</span> rt.js
+<span class="p">$</span> <span class="c"># and the publicPath they are relative to - NOT the runtime's own directory</span>
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'\.p\s*=\s*"[^"]*"'</span> rt.js</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; publicPath, not the bundle's directory</span>
+<p>Chunk prefixes resolve against webpack's <code>publicPath</code>, which
+defaults to the site root. Joining them to the directory the runtime happens to
+live in produces <code>/static/js/static/js/&hellip;</code> and a page of 404s.
+If your minted URLs all 404 while the app works fine, this is why.</p></div>
+
+<h3>Other places the client hides things</h3>
+<pre><span class="p">$</span> <span class="c"># inline state blobs - in the HTML, HTML- AND JSON-escaped</span>
+<span class="p">$</span> <span class="t">grep</span> -oP <span class="s">'(__NEXT_DATA__|__NUXT__|__APOLLO_STATE__|window\._env_)\s*=\s*\{.*'</span> home.html
+<span class="p">$</span> <span class="c"># build manifests - deployed deliberately, linked by nothing</span>
+<span class="p">$</span> <span class="t">for</span> f in manifest.json asset-manifest.json .vite/manifest.json ngsw.json \
+         build-manifest.json routes-manifest.json BUILD_ID; <span class="t">do</span>
+      printf <span class="s">'%-28s '</span> <span class="s">"$f"</span>; curl -s -o /dev/null -w <span class="s">'%{http_code}\n'</span> <span class="s">"https://target.com/$f"</span>
+  <span class="t">done</span>
+<span class="p">$</span> <span class="c"># service worker - an authoritative inventory of every file the app ships</span>
+<span class="p">$</span> <span class="t">curl</span> -s https://target.com/sw.js | <span class="t">grep</span> -oP <span class="s">'"url":"[^"]+"'</span> | <span class="t">sort</span> -u
+<span class="p">$</span> <span class="c"># CSP: the developer's own list of every backend the app talks to</span>
+<span class="p">$</span> <span class="t">curl</span> -sI https://target.com/ | <span class="t">grep</span> -i <span class="s">'content-security-policy'</span> \
+    | <span class="t">grep</span> -oP <span class="s">'https?://[a-z0-9.\-]+'</span> | <span class="t">sort</span> -u</pre>
+<p>The CSP one is worth dwelling on. <code>connect-src</code> is an allowlist the
+developer wrote of every host the application legitimately calls &mdash; including
+internal and staging hosts that appear in no DNS record and no bundle. Also diff
+<code>Content-Security-Policy-Report-Only</code> against the enforced header: the
+delta is a migration someone is part-way through.</p>
+
+<h3>Secrets, and how not to invent them</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s https://target.com/static/js/main.js \
+    | <span class="t">grep</span> -oP <span class="s">'(AKIA|ASIA)[0-9A-Z]{16}|AIza[0-9A-Za-z_\-]{35}|sk_live_[0-9A-Za-z]{20,}|xox[abprs]-[0-9A-Za-z\-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'</span></pre>
+<p>Vendor-prefix patterns like those are high-confidence: the prefix is the
+evidence. Name-based searching is where it goes wrong.</p>
+<div class="box trap"><span class="lbl">Trap &mdash; a key NAME is not a key VALUE</span>
+<p>Searching for <code>api_key</code>, <code>client_secret</code> or
+<code>password</code> followed by a quoted string finds this, constantly:</p>
+<pre style="margin-top:2mm" class="out">Ze().getItem("client_secret"),i=Ze().getItem("acme_base_url")
+{path:"/forgot_password.php",name:"forgot-password"}
+e[e.Password=Ye(13)]="Password"
+accessToken:"example-AP-accessToken"
+apiKey:"no-api-key"</pre>
+<p>Storage key names, route names, enum labels, i18n strings, placeholder defaults.
+Every one of them matches a naive name-and-quoted-value pattern, and in our own
+tooling this exact class produced twelve false findings including two rated
+critical.</p>
+<p><b>Two rules that kill it:</b> require a real <code>:</code> or <code>=</code>
+between the name and the value, and reject a value that merely repeats the key name
+or contains no digits. Then verify by hand &mdash; read the surrounding twenty
+characters before you write the finding down.</p></div>
+<p>Credentials that are <i>meant</i> to be public and are not findings:
+<code>pk_live_</code> / <code>pk_test_</code> Stripe publishable keys, Mapbox
+<code>pk.</code> tokens, Google Analytics <code>G-</code> and <code>UA-</code> IDs,
+reCAPTCHA site keys, Sentry DSNs, PostHog <code>phc_</code> keys. Classify them so
+the reader knows you knew.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Endpoints from HTML <i>and</i> from JavaScript, kept separately.</li>
+<li>Every parameter name seen anywhere, and identifiers classified by shape.</li>
+<li>Source maps probed per asset and confirmed by content.</li>
+<li>Lazy chunks minted and fetched; manifests and service workers pulled.</li>
+<li>Hosts harvested from CSP, with the Report-Only diff.</li>
+<li>Secret candidates, each one read in context before being written down.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 9: PORTS ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 9 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Ports and services</h2>
+<p class="lead">Short chapter, one important discipline. Scan the unique
+<b>addresses</b>, not the hostnames, and prove your network path is honest first.</p>
+
+<h3>Scan addresses, not names</h3>
+<pre><span class="p">$</span> <span class="c"># dnsx -resp prints  host [A] [1.2.3.4]  - SPACE separated,</span>
+<span class="p">$</span> <span class="c"># so cut -f2 (which splits on TAB) hands you the whole line.</span>
+<span class="p">$</span> <span class="t">grep</span> -oE '[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+' resolved.txt | <span class="t">sort</span> -u &gt; ips.txt
+<span class="p">$</span> <span class="t">wc</span> -l names-live.txt ips.txt</pre>
+<p>Forty hostnames behind one load-balancer address is one scan, not forty. This
+is both forty times faster and forty times less rude.</p>
+
+<h3>The canary, before the scan</h3>
+<pre><span class="p">$</span> <span class="t">nmap</span> -Pn -p 21,22,23,25,80,443,2000,3306,5060,8080,8443 192.0.2.1</pre>
+<p>Nothing exists at <code>192.0.2.1</code>. Any port reported open is forged by
+something on your path. Write those ports down and subtract them from every result
+for the rest of the engagement &mdash; a consumer router that answers on 2000 and
+5060 for any destination has produced dozens of phantom findings for people who
+did not check.</p>
+
+<h3>Then scan, politely</h3>
+<pre><span class="p">$</span> <span class="t">naabu</span> -list ips.txt -top-ports 1000 -rate 500 -silent -o ports.txt
+<span class="p">$</span> <span class="c"># or nmap, service versions on what naabu found</span>
+<span class="p">$</span> <span class="t">nmap</span> -Pn -sV -sC -p $(cut -d: -f2 ports.txt | paste -sd,) -iL ips.txt -oA nmap-sv</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; a cloud front end answers for everything</span>
+<p>Scanning a CDN or cloud load-balancer address tells you about the CDN, not your
+target. 80/443 open on a Cloudflare address is a fact about Cloudflare. Correlate
+ports back to the ASN grouping from chapter 2, and treat findings on shared
+infrastructure as the provider's until proven otherwise.</p></div>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>A canary result, with forged ports named.</li>
+<li>Open ports per unique address, with service versions.</li>
+<li>Ports mapped back to the owning network, shared infrastructure flagged.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 10: CLOUD ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 10 &nbsp;<span class="tag pas">passive</span> <span class="tag act">active</span></div>
+<h2 class="ch">When the hosting is AWS or Azure</h2>
+<p class="lead">Almost everything you will test is on one of these two. That
+changes three things: which artifacts you look for, where the target ends and
+the provider begins, and what you are contractually allowed to send. Get the
+second one wrong and you will put somebody else's infrastructure in your
+client's report.</p>
+
+<h3>Tell whose box it is, before you touch it</h3>
+<p>Four signals, any one of which settles it. You already collected three of
+them in chapters 2, 4 and 6.</p>
+<table>
+<tr><th style="width:17%">Signal</th><th>AWS</th><th>Azure</th></tr>
+<tr><td>CNAME chain ends at</td>
+    <td class="m">*.elb.amazonaws.com<br>*.cloudfront.net<br>*.s3.amazonaws.com<br>
+        *.execute-api.&lt;region&gt;.amazonaws.com<br>*.awsglobalaccelerator.com</td>
+    <td class="m">*.azurewebsites.net<br>*.cloudapp.azure.com<br>*.trafficmanager.net<br>
+        *.azurefd.net<br>*.blob.core.windows.net</td></tr>
+<tr><td>Certificate issuer</td>
+    <td class="m">Amazon RSA 2048 M0x (ACM)</td>
+    <td class="m">Microsoft Azure RSA TLS Issuing CA</td></tr>
+<tr><td>Response headers</td>
+    <td class="m">x-amz-cf-id, x-amz-request-id,<br>Server: AmazonS3, Via: CloudFront</td>
+    <td class="m">x-azure-ref, x-ms-request-id,<br>x-aspnet-version, Server: Microsoft-IIS</td></tr>
+<tr><td>IP's ASN (ch2)</td>
+    <td class="m">AS16509 / AS14618 Amazon</td>
+    <td class="m">AS8075 Microsoft</td></tr>
+</table>
+
+<h3>The line that matters: tenant versus provider</h3>
+<div class="box trap"><span class="lbl">Trap &mdash; the provider's fleet is not your client's estate</span>
+<p>A real example from our own tooling, the week this guide was written. The
+IP table for one engagement held 51 entries, of which 23 were hostnames rather
+than addresses, including:</p>
+<pre style="margin-top:2mm" class="out">waws-prod-ln1-067.sip.azurewebsites.windows.net
+waws-prod-par-031-7d07.francecentral.cloudapp.azure.com
+x1y2z3ab.wpeproxy.com
+tbwh2wg5x61j.stspg-customer.com</pre>
+<p>Those are Azure's App Service worker fleet, WP Engine's proxy tier and
+Atlassian's Statuspage edge. They appeared because a DNS parser kept CNAME
+targets in the address list &mdash; and had the port scan run, it would have
+scanned <b>Microsoft's infrastructure</b> and printed the result under the
+client's name.</p>
+<p>Under both providers' shared-responsibility models, <b>the client's
+configuration and data are in scope; the provider's service is not.</b> A
+finding in App Service itself belongs to Microsoft, goes to MSRC, and does not
+go in your client report.</p></div>
+
+<h3>What each provider lets you do, without asking</h3>
+<table>
+<tr><th style="width:12%"></th><th>AWS</th><th>Azure</th></tr>
+<tr><td><b>Approval</b></td>
+    <td>Not required for 16 named services on infrastructure you own &mdash; EC2
+        (incl. WAF, NAT gateways, ELB), RDS, Aurora, CloudFront, API Gateway,
+        AppSync, Lambda and Lambda@Edge, Lightsail, Elastic Beanstalk, ECS,
+        Fargate, OpenSearch, FSx, Transit Gateway, Global Accelerator,
+        Bedrock AgentCore. Anything else: talk to AWS Support first.</td>
+    <td>Not required since 2017. You must comply with the Microsoft Cloud
+        Unified Penetration Testing Rules of Engagement. Applies to Azure
+        only, not to other Microsoft cloud services.</td></tr>
+<tr><td><b>Always prohibited</b></td>
+    <td>DoS, DDoS and <i>simulated</i> DoS of any kind; port, protocol or
+        request flooding; DNS zone walking, hijacking or pharming via Route 53;
+        assessing AWS infrastructure or the AWS services themselves.</td>
+    <td>DoS of any kind including tests that determine, demonstrate or
+        simulate it; accessing, scanning or testing tenants, logs, data or
+        storage accounts you do not own; phishing Microsoft staff, or using
+        Azure to phish anyone; post-exploit activity against Microsoft
+        services beyond an initial proof of concept.</td></tr>
+<tr><td><b>If you find a provider bug</b></td>
+    <td>Stop. Report to AWS, not to the client.</td>
+    <td>Stop and report through MSRC. No enumeration, secret dumping, lateral
+        movement or pivoting.</td></tr>
+</table>
+<p class="cap"><b>sources:</b> aws.amazon.com/security/penetration-testing and
+learn.microsoft.com/azure/security/fundamentals/pen-testing, read 24 Nov 2026.
+Both lists change &mdash; re-read them at the start of every engagement rather
+than trusting this table.</p>
+
+<h3>What it changes, phase by phase</h3>
+<table>
+<tr><th style="width:18%">Phase</th><th>On AWS or Azure</th></tr>
+<tr><td><b>Ports</b> (ch9)</td>
+    <td>Scanning a CloudFront or Front Door edge address tells you about the
+        CDN, not the client. Correlate every open port back to the ASN first.
+        And watch your rate: <b>request flooding is explicitly prohibited by
+        AWS</b>, and a default-rate mass scan can look exactly like it. Keep
+        <code>-rate</code> low and say what you used in the report.</td></tr>
+<tr><td><b>Takeover</b> (ch4)</td>
+    <td>Dangling CNAMEs into S3, Azure Blob or App Service are the classic
+        finding. <b>Detecting one is recon; claiming the name is an active
+        supply-chain action.</b> Prove it with the provider's own error page
+        and a screenshot of the dangling record &mdash; do not register the
+        bucket or app name without explicit written authorisation.</td></tr>
+<tr><td><b>Storage</b></td>
+    <td>Enumerating the client's own buckets and containers is in scope.
+        Brute-forcing the <i>global</i> S3 or blob namespace is not: those
+        names belong to other tenants, and reading them is "accessing storage
+        accounts you do not own". Derive candidate names from the client's own
+        assets, and stop at a listing.</td></tr>
+<tr><td><b>Origin discovery</b></td>
+    <td>Behind CloudFront or Front Door there is an origin. Certificate logs,
+        historical DNS and a host that answers the apex certificate on a
+        different ASN all point at it. Reaching the origin directly bypasses
+        the WAF, which is a real finding &mdash; and the origin is usually an
+        EC2 instance or App Service, both of which are the client's.</td></tr>
+<tr><td><b>Identity</b> (ch12)</td>
+    <td>Azure adds the Entra tenant GUID, federation STS and device-code
+        endpoint from the GetUserRealm and OIDC lookups. AWS adds Cognito user
+        pools, which leak their region and pool id in the client bundle.</td></tr>
+<tr><td><b>Azure-specific</b></td>
+    <td>The default <code>*.azurewebsites.net</code> hostname usually stays
+        live after a custom domain is bound, often without the WAF in front of
+        it &mdash; test both. The Kudu console at
+        <code>&lt;app&gt;.scm.azurewebsites.net</code> is a separate
+        authentication surface on the same app.</td></tr>
+<tr><td><b>AWS-specific</b></td>
+    <td><code>*.execute-api.&lt;region&gt;.amazonaws.com</code> stays reachable
+        after a custom domain is attached, and stage names in the client bundle
+        (<code>/dev</code>, <code>/prod</code>) are often all deployed. Lambda
+        function URLs are internet-facing by default.</td></tr>
+</table>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Every live host labelled with its provider, and every IP with its ASN.</li>
+<li>A tenant-versus-provider decision recorded per host, made before probing.</li>
+<li>The provider's current testing policy read <i>this</i> engagement, not remembered.</li>
+<li>Your scan rate chosen deliberately, and written down.</li>
+<li>Takeover candidates proven by the provider's error page, with nothing claimed.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 10: EMAIL ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 11 &nbsp;<span class="tag pas">passive</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Email and DNS posture</h2>
+<p class="lead">Cheap, entirely passive, and it produces reportable findings more
+reliably than almost anything else in this guide. Most tools emit "SPF: present"
+and stop; everything that matters is in the semantics.</p>
+
+<pre><span class="p">$</span> <span class="t">for</span> q in <span class="s">"TXT portswigger.net"</span> <span class="s">"TXT _dmarc.portswigger.net"</span> \
+         <span class="s">"TXT _mta-sts.portswigger.net"</span> <span class="s">"TXT _smtp._tls.portswigger.net"</span> \
+         <span class="s">"MX portswigger.net"</span> <span class="s">"CAA portswigger.net"</span> <span class="s">"DS portswigger.net"</span>; <span class="t">do</span>
+      echo <span class="s">"--- $q"</span>; dig +short $q
+  <span class="t">done</span></pre>
+
+<h3>SPF</h3>
+<pre class="out">v=spf1 ip4:23.249.220.34/32 ip4:23.249.220.35/32 ip4:54.240.55.173/32
+  ip4:54.240.55.174/32 include:_spf.google.com include:spf.redpoints.com
+  include:_spf.salesforce.com include:148540955.spf02.hubspotemail.net <b>~all</b></pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<table>
+<tr><th style="width:22%">Check</th><th>What to do</th></tr>
+<tr><td class="m">the qualifier</td><td><code>-all</code> hard fail,
+<code>~all</code> soft fail, <code>?all</code> or <code>+all</code> no protection
+at all. <code>+all</code> is a finding on its own.</td></tr>
+<tr><td class="m">10-lookup limit</td><td>Count every <code>include</code>,
+<code>a</code>, <code>mx</code>, <code>ptr</code>, <code>exists</code> and
+<code>redirect</code>, <b>recursively</b> &mdash; RFC 7208 &sect;4.6.4 puts the
+limit on the whole evaluation, not on one record. Past ten, evaluation returns
+<b>PermError</b>. PermError is <b>not</b> a pass: RFC 7208 &sect;8.7 says it
+"gives no true indication about the authorized use", and receivers may reject
+(SHOULD use 550) or deliver with annotation &mdash; behaviour is local policy
+and varies. The consequence is that SPF stops authenticating <i>anything</i>,
+so under DMARC the SPF leg can never pass and alignment rests entirely on
+DKIM.</td></tr>
+<tr><td class="m">dead includes</td><td>Resolve every include target. One that no
+longer exists is an <b>SPF include takeover</b>: register it and you are authorised
+to send as the domain.</td></tr>
+</table>
+<pre><span class="p">$</span> <span class="c"># recursive lookup count - the thing nobody checks</span>
+<span class="p">$</span> <span class="c"># counts every lookup-consuming term, recursively, with a depth guard.</span>
+<span class="p">$</span> <span class="c"># an include loop would otherwise recurse until the shell dies.</span>
+<span class="p">$</span> <span class="t">spf_count</span>() {
+      <span class="t">local</span> d=$1 depth=${2:-0} n=0 rec inc
+      [ <span class="s">"$depth"</span> -ge 5 ] &amp;&amp; { echo 0; <span class="t">return</span>; }
+      rec=$(dig +short TXT <span class="s">"$d"</span> | tr -d <span class="s">'"'</span> | grep -m1 <span class="s">'^v=spf1'</span>)
+      <span class="t">for</span> t in $rec; <span class="t">do</span>
+        <span class="t">case</span> <span class="s">"${t#[+~?-]}"</span> <span class="t">in</span>
+          include:*|redirect=*) n=$((n+1));;
+          a|mx|ptr|a:*|mx:*|ptr:*|exists:*) n=$((n+1));;
+        <span class="t">esac</span>
+      <span class="t">done</span>
+      <span class="t">for</span> inc in $(echo <span class="s">"$rec"</span> | grep -oP <span class="s">'(?:include:|redirect=)\K\S+'</span>); <span class="t">do</span>
+        n=$((n+$(spf_count <span class="s">"$inc"</span> $((depth+1)))))
+      <span class="t">done</span>
+      echo $n
+  }
+<span class="p">$</span> <span class="t">spf_count</span> portswigger.net   <span class="c"># 6 at the time of writing; the limit is 10</span></pre>
+
+<h3>DMARC, and a trap worth the whole chapter</h3>
+<p>Two records were returned for this domain. Look carefully at where each lives:</p>
+<pre class="out">dig +short TXT <b>_dmarc.</b>portswigger.net
+  v=DMARC1; <b>p=quarantine</b>; sp=reject; rua=mailto:postmaster@portswigger.net; fo=1
+
+dig +short TXT portswigger.net        <b>&larr; the APEX, among 23 other TXT records</b>
+  v=DMARC1; <b>p=none</b>; sp=reject; rua=mailto:postmaster@portswigger.net</pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<div class="box trap"><span class="lbl">Trap &mdash; DMARC is only read from _dmarc</span>
+<p>A DMARC record published at the apex is <b>ignored by every receiver</b>. Only
+<code>_dmarc.&lt;domain&gt;</code> is consulted. So the real policy here is
+<code>p=quarantine</code>, and the apex copy is a leftover.</p>
+<p>Now consider a tool that greps the domain's TXT records for
+<code>v=DMARC1</code> &mdash; a very common shortcut. It finds the apex record
+first and reports <code>p=none</code>: no DMARC enforcement, a medium-severity
+finding, completely wrong. Query the exact name, never grep the apex.</p></div>
+<p>Other DMARC detail that matters: <code>sp=</code> is the subdomain policy and
+is often weaker than <code>p=</code>; <code>pct=</code> below 100 means the policy
+applies to a sample only; a missing <code>rua=</code> means nobody is receiving
+reports, so nobody would notice abuse.</p>
+
+<h3>The rest of the posture, in one pass</h3>
+<pre class="out">MX       30 aspmx2.googlemail.com, aspmx3, aspmx4, aspmx5 &hellip;   &rarr; Google Workspace
+CAA      0 issue awstrust.com / comodoca.com / letsencrypt.org / pki.goog
+         0 iodef mailto:sysops@portswigger.net
+DS       <b>none</b>          &rarr; no DNSSEC
+_mta-sts <b>NXDOMAIN</b>      &rarr; no MTA-STS policy
+_smtp._tls <b>NXDOMAIN</b>    &rarr; no TLS reporting
+DKIM     google._domainkey  v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0&hellip;</pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<p>CAA restricts which CAs may issue &mdash; four issuers here, plus an
+<code>iodef</code> contact, which is a mailbox a reporter can use. Absent CAA means
+any CA may issue for the domain. For DKIM, enumerate common selectors
+(<code>default</code>, <code>google</code>, <code>selector1</code>,
+<code>selector2</code>, <code>k1</code>, <code>mail</code>, <code>s1</code>) and
+check the key length &mdash; a 1024-bit RSA key is a finding.</p>
+
+<h3>TXT records are a SaaS inventory</h3>
+<pre class="out">openai-domain-verification=dv-iD4WbS9rcPZlyD0C2SWZ8yhb
+jetbrains-domain-verification=3jnfo1e6gs2eu96q1buo1vkgj
+docker-verification=833c2433-4f0b-4b7a-98e3-e3e6b5881efe
+miro-verification=1c8d7800878929d552d19bb0a27a09a37d300f5c
+anthropic-domain-verification-xf3fkw=yKG6eGGbw6RwHFnoYm4TN5eO9
+slack-domain-verification=j5aJjyk68dQXyWuSqox37zsmeI56W28a35Rvifzt
+calendly-site-verification=bsnI8Xx96051UHIgOv8cHxFfAjPnlrWPhHkrFrXOI
+&hellip; 23 TXT records in total</pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<p>Every one of those is a third-party service the organisation uses, published in
+public DNS. That is a supply-chain map and a pretexting map: it tells you which
+SaaS logins exist to be phished, which integrations might be misconfigured, and
+which vendors would be a credible sender in a social-engineering test. It costs one
+query.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>SPF with its qualifier, recursive lookup count, and every include resolved.</li>
+<li>DMARC read from <code>_dmarc</code> specifically, with <code>sp</code> and
+    <code>pct</code> noted &mdash; and any stray apex copy flagged.</li>
+<li>MX, CAA, DNSSEC, MTA-STS, TLS-RPT and DKIM selectors with key sizes.</li>
+<li>The TXT record set, read as a third-party service inventory.</li>
+<li>The same checks repeated for every <i>mail-capable subdomain</i>, not just the apex.</li>
+</ul></div>
+</div>
+<!-- ===================== CH 11: IDENTITY ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 12 &nbsp;<span class="tag pas">passive</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Identity and tenancy</h2>
+<p class="lead">Which identity provider does the organisation use, which tenant are
+they, and is authentication federated to something on their own premises? All of it
+is answerable from the domain name alone, with no credentials and no key.</p>
+
+<h3>Microsoft: is the domain managed or federated</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://login.microsoftonline.com/getuserrealm.srf?login=user@portswigger.net&xml=1'</span></pre>
+<pre class="out">&lt;RealmInfo Success="true"&gt;
+  &lt;NameSpaceType&gt;<b>Managed</b>&lt;/NameSpaceType&gt;
+  &lt;DomainName&gt;portswigger.net&lt;/DomainName&gt;
+  &lt;IsFederatedNS&gt;<b>false</b>&lt;/IsFederatedNS&gt;
+  &lt;FederationBrandName&gt;<b>PortSwigger Ltd</b>&lt;/FederationBrandName&gt;
+  &lt;CloudInstanceName&gt;microsoftonline.com&lt;/CloudInstanceName&gt;
+&lt;/RealmInfo&gt;</pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026 &mdash; no authentication sent</p>
+<table>
+<tr><th style="width:26%">Value</th><th>What it means</th></tr>
+<tr><td class="m">Managed</td><td>Authentication happens at Microsoft. The attack
+surface is Entra ID itself: conditional access, legacy auth, device-code flow.</td></tr>
+<tr><td class="m">Federated</td><td>Authentication is redirected to an on-premises
+or third-party STS. The response names that host &mdash; and it is frequently an
+ADFS server the organisation forgot was internet-facing. Follow it.</td></tr>
+<tr><td class="m">Unknown</td><td>Not a Microsoft domain. Move to the Okta and
+generic checks below.</td></tr>
+<tr><td class="m">FederationBrandName</td><td>The organisation's own name for
+itself, which confirms you are looking at the right company.</td></tr>
+</table>
+
+<h3>The tenant identifier, region and device-code endpoint</h3>
+<pre><span class="p">$</span> <span class="t">curl</span> -s <span class="s">'https://login.microsoftonline.com/portswigger.net/v2.0/.well-known/openid-configuration'</span> \
+    | <span class="t">jq</span> <span class="s">'{issuer, tenant_region_scope, device_authorization_endpoint}'</span></pre>
+<pre class="out">issuer:        https://login.microsoftonline.com/<b>9136de8a-8338-494e-97fb-347b2df1d48b</b>/v2.0
+tenant_region: <b>EU</b>
+device_auth:   https://login.microsoftonline.com/9136de8a-.../oauth2/v2.0/<b>devicecode</b></pre>
+<p class="cap"><b>captured:</b> portswigger.net, 24 Nov 2026</p>
+<p>The GUID is the tenant. You need it to reference the tenant in any later
+finding, and it confirms two domains belong to the same organisation when the
+branding does not. The <b>device authorization endpoint</b> matters because
+device-code flow is a standing phishing primitive: the attacker generates a code,
+the victim types it into a legitimate Microsoft page, and the attacker receives the
+tokens. Its presence is worth recording in any assessment that includes a social
+engineering component.</p>
+
+<h3>The rest of the identity sweep</h3>
+<pre><span class="p">$</span> <span class="c"># Okta: does an org exist under this name</span>
+<span class="p">$</span> <span class="t">for</span> n in target target-corp targetinc; <span class="t">do</span>
+      <span class="t">for</span> d in okta.com oktapreview.com okta-emea.com; <span class="t">do</span>
+        printf <span class="s">'%-34s '</span> <span class="s">"$n.$d"</span>
+        curl -s -o /dev/null -w <span class="s">'%{http_code}\n'</span> <span class="s">"https://$n.$d/.well-known/okta-organization"</span>
+      <span class="t">done</span>
+  <span class="t">done</span>
+<span class="p">$</span> <span class="c"># self-hosted OIDC and SAML metadata</span>
+<span class="p">$</span> <span class="t">for</span> p in .well-known/openid-configuration .well-known/oauth-authorization-server \
+         auth/realms/master/.well-known/openid-configuration \
+         simplesaml/saml2/idp/metadata.php FederationMetadata/2007-06/FederationMetadata.xml; <span class="t">do</span>
+      printf <span class="s">'%-62s '</span> <span class="s">"$p"</span>; curl -s -o /dev/null -w <span class="s">'%{http_code}\n'</span> <span class="s">"https://target.com/$p"</span>
+  <span class="t">done</span>
+<span class="p">$</span> <span class="c"># autodiscover - and check whether the CNAME dangles (takeover)</span>
+<span class="p">$</span> <span class="t">dig</span> +short CNAME autodiscover.target.com</pre>
+<p>A reachable Keycloak <code>master</code> realm, an ADFS
+<code>FederationMetadata.xml</code> or a SimpleSAMLphp IdP metadata page each give
+you the full authentication configuration: supported flows, signing certificates,
+endpoints and often the software version.</p>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>Managed or federated, and if federated, the STS hostname &mdash; resolved and probed.</li>
+<li>The tenant GUID and region.</li>
+<li>Whether device-code flow is reachable.</li>
+<li>Any self-hosted IdP metadata, with its software and version.</li>
+<li>A dangling-<code>autodiscover</code> check.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 12: AUTHENTICATED ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 13 &nbsp;<span class="tag act">active</span> <span class="tag free">keyless</span></div>
+<h2 class="ch">Authenticated recon</h2>
+<p class="lead">Everything so far was outside the login. The expensive bugs are
+inside it &mdash; broken access control and object-level authorisation are
+consistently the highest-paying classes in the industry, and none of them are
+visible to an unauthenticated scan. What you can do here depends entirely on what
+access you were given, so start by taking inventory of that.</p>
+
+<h3>First: get the session into your terminal</h3>
+<p>Log in with a browser, then move the credential to the command line. Three ways,
+in order of preference:</p>
+<pre><span class="p">$</span> <span class="c"># 1. intercepting proxy - the only one that shows you the whole flow</span>
+<span class="p">$</span> <span class="c"># first run only: start it, browse to http://mitm.it through the proxy</span>
+<span class="p">$</span> <span class="c"># and install the CA certificate, or every HTTPS page will fail.</span>
+<span class="p">$</span> <span class="t">mitmproxy</span> --mode regular --listen-port 8080 -w flows.mitm
+<span class="p">$</span> <span class="c">#    browse the app through it, then read every request it made</span>
+<span class="p">$</span> <span class="t">mitmdump</span> -nr flows.mitm -s <span class="s">'/dev/stdin'</span> &lt;&lt;<span class="s">'EOF'</span>
+  <span class="t">def</span> response(f): print(f.request.method, f.request.pretty_url)
+<span class="s">EOF</span>
+
+<span class="p">$</span> <span class="c"># 2. copy the request out of devtools as curl, then strip it down</span>
+<span class="p">$</span> <span class="c">#    Network tab -> right click -> Copy as cURL</span>
+
+<span class="p">$</span> <span class="c"># 3. keep the cookie jar in a file and reuse it</span>
+<span class="p">$</span> <span class="c"># never put a real password on the command line: it lands in</span>
+<span class="p">$</span> <span class="c"># your shell history and in the process list, readable by others.</span>
+<span class="p">$</span> <span class="t">read</span> -rs -p <span class="s">'password: '</span> PW; echo
+<span class="p">$</span> <span class="t">curl</span> -s -c jar.txt -b jar.txt \n    --data-urlencode <span class="s">"username=$USERNAME"</span> \n    --data-urlencode <span class="s">"password=$PW"</span> https://target.com/login
+<span class="p">$</span> <span class="t">curl</span> -s -b jar.txt https://target.com/my-account</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; two credentials, not one</span>
+<p>Modern apps carry a session cookie <i>and</i> a bearer token, often with
+different lifetimes and different authorisation logic. A request that works in the
+browser and fails from curl is usually missing the second one &mdash; a CSRF
+header, an <code>Authorization</code> bearer, a tenant header. Diff your curl
+request against the browser's until they match, then start removing headers one at
+a time to learn which actually matter. That exercise is itself a finding
+generator.</p></div>
+
+<h3>Then: inventory your access, and branch</h3>
+<table>
+<tr><th style="width:22%">What you have</th><th>What becomes testable</th></tr>
+<tr><td><b>No account</b><br><span class="tag pas">recon only</span></td>
+<td>Map the login surface itself: registration, password reset, OTP, SSO entry
+points, and the error-message differences between a known and unknown username.
+Inventory the authenticated API from the client-side artefacts in chapter 8 and
+rank it &mdash; you are producing a target list for whoever gets credentials.</td></tr>
+<tr><td><b>One account</b><br><span class="tag act">partial</span></td>
+<td>Enumerate the whole authenticated surface. Function-level authorisation becomes
+testable: call administrative endpoints with your low-privilege session. Object-level
+authorisation does <i>not</i> &mdash; you have nothing to compare against.</td></tr>
+<tr><td><b>Two accounts, same tenant</b><br><span class="tag act">full</span></td>
+<td>The configuration that matters. Object-level authorisation, role differences,
+privilege escalation, and the four-cell matrix below.</td></tr>
+<tr><td><b>Two tenants</b><br><span class="tag act">full</span></td>
+<td>Everything above, plus cross-tenant isolation &mdash; the highest-impact class
+in any multi-tenant product.</td></tr>
+</table>
+
+<h3>Enumerate the authenticated surface</h3>
+<pre><span class="p">$</span> <span class="c"># the client now ships far more than it did pre-login - re-mine it</span>
+<span class="p">$</span> <span class="t">curl</span> -s -b jar.txt https://target.com/dashboard \
+    | <span class="t">grep</span> -oP <span class="s">'(?&lt;=src=")[^"]+'</span> | <span class="t">sort</span> -u &gt; authed-assets.txt
+<span class="p">$</span> <span class="c"># API documentation that is only exposed to a session</span>
+<span class="p">$</span> <span class="t">for</span> p in openapi.json swagger.json swagger/v1/swagger.json api-docs \
+         graphql playground v2/api-docs actuator/mappings; <span class="t">do</span>
+      printf <span class="s">'%-30s '</span> <span class="s">"$p"</span>
+      curl -s -b jar.txt -o /dev/null -w <span class="s">'%{http_code} %{size_download}B\n'</span> <span class="s">"https://target.com/$p"</span>
+  <span class="t">done</span></pre>
+<pre><span class="p">$</span> <span class="c"># build endpoints.txt, which the role matrix below consumes</span>
+<span class="p">$</span> <span class="t">cat</span> endpoints-html.txt endpoints-js.txt endpoints-authed.txt 2&gt;/dev/null \
+    | <span class="t">grep</span> -oE '^/[A-Za-z0-9_./{}-]*' | <span class="t">sort</span> -u \
+    | <span class="t">grep</span> -vE '^/(logout|signout|sign-out)' &gt; endpoints.txt</pre>
+<p>Compare that list against the unauthenticated one from chapter 8. The
+<i>difference</i> is the authenticated surface, and it is the thing to rank.</p>
+<div class="box trap"><span class="lbl">Trap &mdash; the role matrix logs itself out</span>
+<p>If <code>/logout</code> is in <code>endpoints.txt</code>, the loop below
+requests it, destroys the session, and every remaining row for that role
+comes back 401 &mdash; which reads exactly like "this role has no access to
+anything". The <code>grep -v</code> above drops the obvious ones; check your
+own list before running a matrix across it.</p></div>
+
+<h3>The four-cell matrix &mdash; the only authz test that proves anything</h3>
+<p>For any endpoint that takes an object identifier, you need four requests. Three
+of them are controls, and skipping them is how false findings get reported.</p>
+<table>
+<tr><th class="m" style="width:10%">#</th><th>Request</th><th>Expected</th><th>What it proves</th></tr>
+<tr><td class="m">1</td><td>Victim's session &rarr; victim's object</td>
+    <td class="m">200</td><td>The object exists and the endpoint works.</td></tr>
+<tr><td class="m">2</td><td>Attacker's session &rarr; <b>attacker's own</b> object</td>
+    <td class="m">200</td><td>Your session is valid and you have permission to the
+    <i>function</i>. Without this, a 403 in test 3 means nothing.</td></tr>
+<tr><td class="m">3</td><td>Attacker's session &rarr; victim's object</td>
+    <td class="m" style="color:var(--red)">403</td><td>If this returns 200, that is
+    the finding.</td></tr>
+<tr><td class="m">4</td><td>No session &rarr; victim's object</td>
+    <td class="m">401</td><td>Separates broken object authorisation from no
+    authentication at all.</td></tr>
+</table>
+<div class="box trap"><span class="lbl">Trap &mdash; read the next command correctly</span>
+<p>A body comparison is a <i>weak</i> oracle: signed URLs, nonces and
+timestamps make two identical records differ, and a cached error page makes two
+different records match. Use it to <b>raise</b> a lead, never to close one. And
+note how it reads: <code>diff</code> printing <b>nothing</b> means the two
+bodies are identical, i.e. the attacker received the victim's record &mdash;
+<b>silence is the finding</b>, not the all-clear.</p>
+<p>The strong oracle is a state change you can observe from the other side:
+make the change as the attacker, then log in as the victim and look. That is
+the only version that survives review.</p></div>
+<pre><span class="p">$</span> <span class="c"># weak oracle: compare bodies. Empty diff = SAME = the finding.</span>
+<span class="p">$</span> <span class="t">curl</span> -s -b attacker.txt <span class="s">"https://target.com/api/invoice/4471"</span> | <span class="t">tee</span> /tmp/a.json
+<span class="p">$</span> <span class="t">curl</span> -s -b victim.txt   <span class="s">"https://target.com/api/invoice/4471"</span> | <span class="t">diff</span> - /tmp/a.json</pre>
+<div class="box trap"><span class="lbl">Trap &mdash; three ways an authz test lies</span>
+<ul>
+<li><b>Request your own object first.</b> A 403 on someone else's object proves
+nothing if you also get 403 on your own &mdash; you simply lack the function
+permission. This is the single most common false negative.</li>
+<li><b>A flag in the response body is not a decision.</b> <code>can_read: true</code>
+in a JSON payload is a default the server sent you, not proof the server enforced
+anything. Verify by logging in <i>as</i> the object's owner and seeing whether the
+change you made is there.</li>
+<li><b>Editing a response in your proxy changes nothing.</b> Intercepting a
+response and flipping <code>"isAdmin":false</code> to <code>true</code> alters what
+your browser renders. It does not alter the server. Confirm against the real
+endpoint with a fresh request.</li>
+</ul></div>
+
+<h3>Role diffing</h3>
+<pre><span class="p">$</span> <span class="c"># capture the full endpoint set per role, then diff them</span>
+<span class="p">$</span> <span class="t">for</span> role in admin manager user readonly; <span class="t">do</span>
+      <span class="t">while read</span> ep; <span class="t">do</span>
+        printf <span class="s">'%s\t%s\t'</span> <span class="s">"$role"</span> <span class="s">"$ep"</span>
+        curl -s -b <span class="s">"jar-$role.txt"</span> -o /dev/null -w <span class="s">'%{http_code}\n'</span> <span class="s">"https://target.com$ep"</span>
+      <span class="t">done</span> &lt; endpoints.txt
+  <span class="t">done</span> | <span class="t">tee</span> role-matrix.tsv
+<span class="p">$</span> <span class="t">awk</span> -F<span class="s">'\t'</span> <span class="s">'$3==200 {print $2}'</span> role-matrix.tsv | <span class="t">sort</span> | <span class="t">uniq</span> -c | <span class="t">sort</span> -n</pre>
+<p>An endpoint that returns 200 for <i>every</i> role is either public by design or
+missing function-level authorisation entirely. The matrix tells you which
+endpoints to read the code for &mdash; and it is reusable as a regression test
+after the client fixes something.</p>
+<div class="box note"><span class="lbl">Before you send a state-changing request</span>
+<p>Write the restore request first. If a test creates, modifies or deletes
+something, you must be able to put it back, and the restore request belongs in your
+notes next to the test request. Clean up after yourself in the same session &mdash;
+not next week, when you have forgotten what the original value was.</p></div>
+
+<div class="box have"><span class="lbl">What you should have now</span>
+<ul>
+<li>A working session in the terminal, with every header it genuinely needs.</li>
+<li>The authenticated endpoint set, diffed against the unauthenticated one.</li>
+<li>A role matrix across every account you were given.</li>
+<li>Object identifiers classified, with the sequential ones tested through all four cells.</li>
+<li>A restore request recorded for everything you changed, and executed.</li>
+</ul></div>
+</div>
+
+<!-- ===================== CH 13: EVIDENCE ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 14</div>
+<h2 class="ch">Evidence and note discipline</h2>
+<p class="lead">A finding nobody can reproduce is not a finding. The work here is
+boring and it is the difference between a report that gets fixed and one that gets
+argued with.</p>
+
+<h3>One directory per engagement, one file per phase</h3>
+<pre class="out">engagements/target.com/2026-11-24/
+├── 00-scope.md            what you are allowed to touch, pasted verbatim
+├── 01-notes.md            running log, timestamped, append-only
+├── 02-names-all.txt       passive union, with source per name
+├── 03-names-live.txt      resolved, wildcard-controlled
+├── 04-vhost-candidates.txt
+├── 05-http-probe.txt
+├── 06-certs/              one file per host
+├── 07-content/            ffuf json per host+directory, with the baseline recorded
+├── 08-client/             bundles, maps, manifests as fetched
+├── 09-ports/              canary result FIRST, then scans
+├── 10-email-dns.md
+├── 11-identity.md
+├── 12-authed/             role-matrix.tsv, per-account jars, restore requests
+├── raw/                   every request and response, unedited
+└── findings/              one markdown file per lead, with its status</pre>
+
+<h3>Capture requests raw, not as prose</h3>
+<p>Every finding's reproduction steps should be a request someone can paste into a
+terminal or a proxy and send, unmodified. Not a description of a request.</p>
+<pre><span class="p">$</span> <span class="c"># --trace-ascii gives you the exact bytes sent and received</span>
+<span class="p">$</span> <span class="t">curl</span> -s --trace-ascii raw/invoice-4471-attacker.txt \
+    -b attacker.txt <span class="s">"https://target.com/api/invoice/4471"</span>
+<span class="p">$</span> <span class="c"># and send untrusted values as literals, never as fields curl may interpret</span>
+<span class="p">$</span> <span class="t">curl</span> --form-string <span class="s">"comment=@not-a-file"</span> https://target.com/api/comment</pre>
+<div class="box note"><span class="lbl">What every lead file needs</span>
+<ul>
+<li>The <b>baseline</b> you compared against, with the command that produced it.</li>
+<li>All four requests of the matrix, raw, including the controls that passed.</li>
+<li>The <b>timestamp</b> and the host that answered (the <code>X-Backend</code>-style
+header, if there is one &mdash; behaviour differing between backends is a real
+phenomenon).</li>
+<li>The <b>restore request</b>, if anything changed.</li>
+<li>A one-line statement of what would make you withdraw the finding.</li>
+</ul></div>
+<p>That last item is the one people skip and the one that saves you. Writing "this
+is invalid if the endpoint turns out to be public by design" forces you to go and
+check whether it is.</p>
+
+<h3>Record untested, not just found</h3>
+<p>Your notes need a section for things you could not test and why: a source that
+returned 429, a host that blanket-403s so path results mean nothing in either
+direction, an IPv6-only host you had no route to, a cap that fired. Without it, the
+next person reads your clean result as coverage you never had.</p>
+</div>
+
+<!-- ===================== CH 14: WHEN TO STOP ===================== -->
+<div class="sec">
+<div class="chnum">Chapter 15</div>
+<h2 class="ch">Knowing when to stop</h2>
+<p class="lead">Recon expands without limit. The skill is deciding which of two
+hundred leads deserve the next hour, and saying out loud which ones you abandoned.</p>
+
+<h3>Rank by what the lead would cost an attacker</h3>
+<table>
+<tr><th style="width:12%">Tier</th><th>Lead</th><th>Why it ranks here</th></tr>
+<tr><td><b>1</b></td><td>Pre-authentication surface on a host nobody owns &mdash;
+forgotten subdomains, dangling CNAMEs, staging environments, exposed admin panels.</td>
+<td>No credentials needed, and nobody is watching. Highest impact per unit of
+effort for both of you.</td></tr>
+<tr><td><b>2</b></td><td>Sequential object identifiers on an authenticated
+endpoint.</td><td>If authorisation is missing anywhere, this is the cheapest way to
+prove it, and it is the industry's highest-paying bug class.</td></tr>
+<tr><td><b>3</b></td><td>Verified credentials or keys in client-side code.</td>
+<td>Direct access, but verify validity before reporting &mdash; most are rotated,
+sandboxed or public by design.</td></tr>
+<tr><td><b>4</b></td><td>Version-based leads: EOL frameworks, known-vulnerable
+components.</td><td>Real, but needs exact version matching and usually a reachable
+code path. Easy to over-claim.</td></tr>
+<tr><td><b>5</b></td><td>Posture findings: missing headers, weak SPF, no DNSSEC.</td>
+<td>True, cheap, and they belong in the report &mdash; but they are not why you
+were hired.</td></tr>
+</table>
+
+<h3>Kill a lead properly</h3>
+<p>A dead lead should be dead for a stated reason, written down. Three legitimate
+reasons:</p>
+<ul>
+<li><b>Disproved.</b> You ran the test with working controls and the behaviour is
+correct. Record the controls.</li>
+<li><b>Out of scope.</b> The host belongs to a third party. Record who, and move
+on without probing further.</li>
+<li><b>Untestable with what you have.</b> Needs a second account, an authenticated
+session, an out-of-band collaborator, a route you do not have. This is <b>not</b>
+the same as disproved, and it must not be filed as one.</li>
+</ul>
+<div class="box trap"><span class="lbl">Trap &mdash; the thing that looks like completion</span>
+<p>"I ran the tools and found nothing" is the sentence to be most suspicious of.
+Before you write it, go back through chapter 1: did your resolver answer? did the
+canary come back clean? did you baseline per directory? did every source return
+200? was your detector capable of showing a positive on a target you <i>know</i>
+has one?</p>
+<p>If you cannot answer all of those, you have not found nothing. You have not
+looked.</p></div>
+
+<h3>Hand over</h3>
+<p>What the next person needs from you, in one page: the live host list ranked, the
+untested list with reasons, the credentials and jars you used, the baselines you
+measured per host, and the single sentence you would start with tomorrow morning.</p>
+</div>
+
+<!-- ===================== APPENDIX A: CHECKLIST ===================== -->
+<div class="sec">
+<div class="chnum">Appendix A</div>
+<h2 class="ch">The one-page checklist</h2>
+<p class="lead">Print this. It is the whole guide as a tick list, with the one
+command per step that does most of the work.</p>
+
+<table>
+<tr><th class="m" style="width:4%">&#9744;</th><th style="width:26%">Step</th><th>Command</th></tr>
+<tr><td class="m">&#9744;</td><td><b>Scope</b> read, hosts grepped against it</td><td class="m">&mdash;</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Resolver proved</b></td><td class="m">dig +short NS $D @&lt;resolver&gt;</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Wildcard DNS control</b></td><td class="m">dig +short nope-$RANDOM.$D</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Port canary</b> (same ports you will scan)</td><td class="m">nmap -Pn -p $PORTS 192.0.2.1</td></tr>
+<tr><td class="m">&#9744;</td><td>Registration</td><td class="m">curl -s rdap.org/domain/$D | jq .</td></tr>
+<tr><td class="m">&#9744;</td><td>Nameservers + AXFR</td><td class="m">dig +short NS $D ; dig AXFR $D @&lt;ns&gt;</td></tr>
+<tr><td class="m">&#9744;</td><td>CT logs &times;2</td><td class="m">crt.sh?q=%25.$D&amp;output=json ; api.certspotter.com</td></tr>
+<tr><td class="m">&#9744;</td><td>Passive DNS &times;3</td><td class="m">hackertarget ; subdomain.center ; rapiddns</td></tr>
+<tr><td class="m">&#9744;</td><td>Archive URLs</td><td class="m">web.archive.org/cdx/search/cdx?url=*.$D/*</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Every source's HTTP status recorded</b></td><td class="m">&mdash;</td></tr>
+<tr><td class="m">&#9744;</td><td>Resolve + corroboration count</td><td class="m">dnsx -l names.txt -a -aaaa -cname -resp</td></tr>
+<tr><td class="m">&#9744;</td><td>Non-resolvers kept as vhosts</td><td class="m">curl -H "Host: $n" https://&lt;ip&gt;/</td></tr>
+<tr><td class="m">&#9744;</td><td>CNAME chains + takeover test &times;3</td><td class="m">dig +short CNAME $h</td></tr>
+<tr><td class="m">&#9744;</td><td>Parent-side NS delegation</td><td class="m">dig +norecurse NS sub.$D @&lt;parent-ns&gt;</td></tr>
+<tr><td class="m">&#9744;</td><td>HTTP probe both schemes</td><td class="m">httpx -l live.txt -sc -title -tech-detect -server</td></tr>
+<tr><td class="m">&#9744;</td><td>Full headers saved raw</td><td class="m">curl -sSi https://$h/</td></tr>
+<tr><td class="m">&#9744;</td><td>Script sources read for versions</td><td class="m">grep -oP '(?&lt;=src=")[^"]+'</td></tr>
+<tr><td class="m">&#9744;</td><td>Methods + CORS</td><td class="m">curl -X OPTIONS ; -H 'Origin: ...'</td></tr>
+<tr><td class="m">&#9744;</td><td>Cert SANs harvested + diffed</td><td class="m">openssl s_client ... | openssl x509 -ext subjectAltName</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Baseline per directory</b></td><td class="m">curl -w '%{http_code} %{size_download}' .../recon-baseline-$RANDOM</td></tr>
+<tr><td class="m">&#9744;</td><td>Well-known paths</td><td class="m">robots.txt sitemap.xml security.txt .git/config .env</td></tr>
+<tr><td class="m">&#9744;</td><td>Fuzz with measured filters</td><td class="m">ffuf -u .../FUZZ -mc all -fs &lt;baseline&gt; -ac -rate 40</td></tr>
+<tr><td class="m">&#9744;</td><td>HTML links, forms, parameter names</td><td class="m">grep -oP '(?&lt;=href=")[^"#]+'</td></tr>
+<tr><td class="m">&#9744;</td><td>JS endpoints (separately)</td><td class="m">grep -oP "['\"]/(api|v\d|rest|admin)[^'\"]*"</td></tr>
+<tr><td class="m">&#9744;</td><td>Source maps probed per asset</td><td class="m">curl -s $asset.map | head -c 120</td></tr>
+<tr><td class="m">&#9744;</td><td>Lazy chunks minted (+ publicPath)</td><td class="m">grep -oP '\{[0-9]+:"[^"]*"' runtime.js</td></tr>
+<tr><td class="m">&#9744;</td><td>Manifests, service worker, CSP hosts</td><td class="m">curl -sI | grep -i content-security-policy</td></tr>
+<tr><td class="m">&#9744;</td><td>Secrets by vendor prefix, read in context</td><td class="m">grep -oP 'AKIA[0-9A-Z]{16}|AIza[\w\-]{35}'</td></tr>
+<tr><td class="m">&#9744;</td><td>Identifiers classified by shape</td><td class="m">grep -oP '[?&amp;]\w*(id|uuid|ref)=[^&amp;]*'</td></tr>
+<tr><td class="m">&#9744;</td><td>Ports per unique IP</td><td class="m">naabu -list ips.txt -top-ports 1000</td></tr>
+<tr><td class="m">&#9744;</td><td>SPF qualifier + recursive lookup count</td><td class="m">dig +short TXT $D</td></tr>
+<tr><td class="m">&#9744;</td><td><b>DMARC from _dmarc, not the apex</b></td><td class="m">dig +short TXT _dmarc.$D</td></tr>
+<tr><td class="m">&#9744;</td><td>CAA, DNSSEC, MTA-STS, TLS-RPT, DKIM</td><td class="m">dig +short CAA $D ; DS $D ; TXT _mta-sts.$D</td></tr>
+<tr><td class="m">&#9744;</td><td>TXT read as SaaS inventory</td><td class="m">dig +short TXT $D | grep -i verification</td></tr>
+<tr><td class="m">&#9744;</td><td>Identity: managed vs federated</td><td class="m">getuserrealm.srf?login=user@$D&amp;xml=1</td></tr>
+<tr><td class="m">&#9744;</td><td>Tenant GUID + device-code endpoint</td><td class="m">login.microsoftonline.com/$D/v2.0/.well-known/openid-configuration</td></tr>
+<tr><td class="m">&#9744;</td><td>Session into terminal</td><td class="m">mitmproxy -w flows.mitm ; curl -b jar.txt</td></tr>
+<tr><td class="m">&#9744;</td><td>Authed surface diffed vs unauthed</td><td class="m">comm -13 unauth.txt authed.txt</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Four-cell matrix per object endpoint</b></td><td class="m">own object first, then victim's, then unauth</td></tr>
+<tr><td class="m">&#9744;</td><td>Role matrix captured</td><td class="m">for role in ...; do curl -b jar-$role.txt; done</td></tr>
+<tr><td class="m">&#9744;</td><td>Restore requests written and run</td><td class="m">&mdash;</td></tr>
+<tr><td class="m">&#9744;</td><td><b>Untested list written with reasons</b></td><td class="m">&mdash;</td></tr>
+<tr><td class="m">&#9744;</td><td>Leads ranked, dead ones killed with a reason</td><td class="m">&mdash;</td></tr>
+</table>
+</div>
+
+<!-- ===================== APPENDIX B: INSTALL ===================== -->
+<div class="sec">
+<div class="chnum">Appendix B</div>
+<h2 class="ch">Getting a bare Kali to working state</h2>
+<p class="lead">Everything below is free and needs no account. Kali ships several
+of these already; the lines are idempotent, so run them all.</p>
+
+<h4>From the distribution</h4>
+<pre><span class="p">$</span> <span class="c"># one package per call: a single unavailable name aborts the whole</span>
+<span class="p">$</span> <span class="c"># batch otherwise, and you will not notice which one it was.</span>
+<span class="p">$</span> <span class="t">sudo</span> apt update
+<span class="p">$</span> <span class="t">for</span> p in dnsutils curl jq openssl nmap whois git python3-pip \
+         mitmproxy wordlists seclists dirb; <span class="t">do</span>
+      <span class="t">sudo</span> apt install -y <span class="s">"$p"</span> || echo <span class="s">"MISSING: $p"</span>
+  <span class="t">done</span></pre>
+<p><code>dnsutils</code> provides <code>dig</code>. <code>seclists</code> and
+<code>wordlists</code> land in <code>/usr/share/</code>.</p>
+
+<h4>The ProjectDiscovery set, from GitHub releases</h4>
+<pre><span class="p">$</span> <span class="t">mkdir</span> -p ~/.local/bin &amp;&amp; <span class="t">cd</span> /tmp
+<span class="p">$</span> <span class="t">for</span> t in subfinder httpx dnsx naabu nuclei katana; <span class="t">do</span>
+      url=$(curl -s <span class="s">"https://api.github.com/repos/projectdiscovery/$t/releases/latest"</span> \
+            | jq -r <span class="s">'.assets[].browser_download_url'</span> \
+            | grep -i <span class="s">"linux_amd64.zip"</span> | head -1)
+      curl -sL <span class="s">"$url"</span> -o <span class="s">"$t.zip"</span> &amp;&amp; unzip -oq <span class="s">"$t.zip"</span> <span class="s">"$t"</span> -d ~/.local/bin/
+  <span class="t">done</span>
+<span class="p">$</span> <span class="t">curl</span> -sL <span class="s">"$(curl -s https://api.github.com/repos/ffuf/ffuf/releases/latest \
+    | jq -r '.assets[].browser_download_url' | grep linux_amd64.tar.gz | head -1)"</span> \
+    | <span class="t">tar</span> xz -C ~/.local/bin ffuf
+<span class="p">$</span> <span class="t">echo</span> <span class="s">'export PATH=$PATH:~/.local/bin'</span> &gt;&gt; ~/.bashrc &amp;&amp; <span class="t">source</span> ~/.bashrc
+<span class="p">$</span> <span class="t">nuclei</span> -update-templates</pre>
+
+<h4>Verify before you rely on any of it</h4>
+<pre><span class="p">$</span> <span class="t">for</span> t in dig curl jq openssl nmap mitmproxy subfinder httpx dnsx naabu nuclei katana ffuf; <span class="t">do</span>
+      printf <span class="s">'%-12s '</span> <span class="s">"$t"</span>; command -v $t &gt;/dev/null &amp;&amp; echo ok || echo MISSING
+  <span class="t">done</span></pre>
+<div class="box note"><span class="lbl">On the samples in this guide</span>
+<p>Every output block labelled <b>captured</b> was produced live against the stated
+target on 24 November 2026. The commands using <code>subfinder</code>,
+<code>httpx</code>, <code>dnsx</code>, <code>naabu</code>, <code>nuclei</code>,
+<code>katana</code> and <code>ffuf</code> are given as the commands to run; their
+output is described rather than shown, because the box this guide was written on
+could not run Linux binaries. Everything else &mdash; every <code>curl</code>,
+<code>dig</code>, <code>openssl</code> and <code>jq</code> result &mdash; is real
+captured output.</p></div>
+</div>
+
+<!-- ===================== APPENDIX C: GLOSSARY ===================== -->
+<div class="sec">
+<div class="chnum">Appendix C</div>
+<h2 class="ch">Glossary</h2>
+<table>
+<tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+<tr><td class="m">AXFR</td><td>DNS zone transfer. If permitted, returns the entire zone in one request.</td></tr>
+<tr><td class="m">baseline</td><td>What a server returns for something that cannot exist. Your reference value for deciding whether any other response means anything.</td></tr>
+<tr><td class="m">BOLA / IDOR</td><td>Broken object-level authorisation. The server checks you are logged in but not that the object is yours.</td></tr>
+<tr><td class="m">BFLA</td><td>Broken function-level authorisation. You can call an endpoint your role should not be able to call at all.</td></tr>
+<tr><td class="m">CAA</td><td>DNS record restricting which certificate authorities may issue for a domain.</td></tr>
+<tr><td class="m">canary</td><td>A probe against something that cannot answer (an unroutable address, an invented path), used to detect a lying instrument.</td></tr>
+<tr><td class="m">CDX</td><td>The Wayback Machine's index API. Returns archived URLs with timestamps and content digests.</td></tr>
+<tr><td class="m">CT log</td><td>Certificate transparency log. A public append-only record of issued certificates, searchable by hostname.</td></tr>
+<tr><td class="m">device-code flow</td><td>OAuth flow for input-constrained devices. Abusable for phishing: the victim enters a code on a genuine provider page and the attacker receives the tokens.</td></tr>
+<tr><td class="m">DKIM selector</td><td>The label identifying which signing key to use, published at <code>&lt;selector&gt;._domainkey.&lt;domain&gt;</code>.</td></tr>
+<tr><td class="m">DMARC</td><td>Policy, published only at <code>_dmarc.&lt;domain&gt;</code>, telling receivers what to do when SPF and DKIM fail.</td></tr>
+<tr><td class="m">MTA-STS</td><td>Policy requiring TLS for inbound mail, published at <code>_mta-sts.&lt;domain&gt;</code> and over HTTPS.</td></tr>
+<tr><td class="m">publicPath</td><td>The base URL webpack resolves lazy-chunk filenames against. Defaults to the site root, <i>not</i> the bundle's own directory.</td></tr>
+<tr><td class="m">RDAP</td><td>The JSON successor to whois. Structured, so it is scriptable.</td></tr>
+<tr><td class="m">soft 404</td><td>A page that reports success while meaning "not found". Defeats status-code-based discovery entirely.</td></tr>
+<tr><td class="m">source map</td><td><code>.map</code> file reconstructing original source from a minified bundle, including comments and often secrets.</td></tr>
+<tr><td class="m">SPF PermError</td><td>What happens past ten DNS lookups in an SPF record (RFC 7208 &sect;4.6.4). Not a pass and not a fail &mdash; SPF simply cannot authenticate, so the domain loses SPF protection and DMARC must rely on DKIM. Receiver handling varies.</td></tr>
+<tr><td class="m">subdomain takeover</td><td>A DNS record pointing at a third-party resource that no longer exists, letting someone else claim it and serve content on the target's hostname.</td></tr>
+<tr><td class="m">TEST-NET-1</td><td><code>192.0.2.0/24</code>, reserved by RFC 5737 for documentation. Nothing routes there, which makes it a perfect canary.</td></tr>
+<tr><td class="m">apex</td><td>The registrable domain itself (<code>example.com</code>), as opposed to a subdomain of it. Also called the zone apex or naked domain.</td></tr>
+<tr><td class="m">ASN</td><td>Autonomous System Number &mdash; the identifier for a block of IP space under one operator's control. Grouping hosts by ASN separates the client's own infrastructure from their cloud provider's.</td></tr>
+<tr><td class="m">jar</td><td>A cookie jar: the file <code>curl -c</code> writes session cookies to and <code>curl -b</code> reads them back from, so a sequence of requests shares one login.</td></tr>
+<tr><td class="m">NODATA</td><td>The name exists but has no record of the type you asked for. It is <b>not</b> NXDOMAIN, and <code>dig +short</code> prints nothing for either.</td></tr>
+<tr><td class="m">NXDOMAIN</td><td>The name does not exist at all. The only DNS answer that proves absence &mdash; and only when you read the status field, since <code>+short</code> prints nothing for a timeout too.</td></tr>
+<tr><td class="m">oracle</td><td>Anything that tells you reliably whether an attack worked. A response body is a weak oracle; a state change you can observe as another user is a strong one.</td></tr>
+<tr><td class="m">SAN</td><td>Subject Alternative Name &mdash; the list of hostnames a TLS certificate covers. On shared infrastructure it also names other tenants, who are not your scope.</td></tr>
+<tr><td class="m">SERVFAIL</td><td>The resolver could not complete the query. Says nothing about whether the name exists; usually a broken delegation or DNSSEC failure.</td></tr>
+<tr><td class="m">STS</td><td>Security Token Service &mdash; the host that issues authentication tokens for a federated domain. Named in the GetUserRealm response, and frequently an internet-facing server nobody remembers owning.</td></tr>
+<tr><td class="m">vhost</td><td>Virtual host. A site served only when the right <code>Host</code> header arrives, so it need not appear in DNS at all.</td></tr>
+<tr><td class="m">wildcard DNS</td><td>A zone where every name resolves. Makes brute-force enumeration return everything and mean nothing.</td></tr>
+</table>
+</div>
+
+<!-- ===================== APPENDIX D: WHAT WE HAVE ===================== -->
+<div class="sec">
+<div class="chnum">Appendix D</div>
+<h2 class="ch">What is already built</h2>
+<p class="lead">Learn the manual path first &mdash; you cannot debug or defend a
+result you could not produce by hand. Once you can, these save hours.</p>
+
+<table>
+<tr><th style="width:26%">Where</th><th>What it is</th><th style="width:30%">Use it when</th></tr>
+<tr><td class="m">tools/candor.py</td>
+    <td>Single-file, stdlib-only automation of this entire guide's passive and
+    active phases, 25 stages, three tiers. Produces Markdown, JSON and HTML with a
+    coverage section that lists what it could <i>not</i> test.</td>
+    <td>First pass on a new domain, and for the breadth a manual sweep will not
+    cover in a day. Read its coverage section before its findings.</td></tr>
+<tr><td class="m">tools/OSINT-SITES.md</td>
+    <td>Catalogue of verified recon and OSINT sources: which are keyless, which
+    need an account, which are dead, plus a copy-paste shortlist of keyless API
+    endpoints.</td>
+    <td>Chapter 3, when you want more sources than the seven listed here.</td></tr>
+<tr><td class="m">tools/GAPS-CLOSED.md</td>
+    <td>What mainstream recon tooling misses and why, with the false-positive
+    incidents behind each control in chapter 1 written up in full.</td>
+    <td>When you want to know why a check in this guide exists.</td></tr>
+</table>
+
+<h3>The sentence to take away</h3>
+<div class="box have"><span class="lbl">If you remember one thing</span>
+<p style="font-size:11.5pt"><b>An absence is only evidence if your instrument could
+have shown you the presence.</b></p>
+<p>Every chapter of this guide is that rule applied to one phase. The tooling will
+get faster and the sources will change. That does not.</p></div>
+</div>
+
+</div><!-- /.pg -->
+</body></html>
