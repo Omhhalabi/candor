@@ -5,7 +5,7 @@ Three things live here. One is a program, two are documents.
 | File | What it is |
 |---|---|
 | [`candor.py`](candor.py) | **Candor.** One domain in, full attack-surface recon report out. Single file, stdlib only, 25 stages. Named for the Coverage section: it reports what it could not see, above what it found. |
-| [`MANUAL-RECON-FIELD-GUIDE.html`](MANUAL-RECON-FIELD-GUIDE.html) | 15-chapter manual methodology for any domain, with the commands. For hunting without the tool. |
+| [`MANUAL-RECON-FIELD-GUIDE.pdf`](MANUAL-RECON-FIELD-GUIDE.pdf) | 15-chapter manual methodology for any domain, with the commands. For hunting without the tool. (Source: `MANUAL-RECON-FIELD-GUIDE.html`.) |
 | [`OSINT-SITES.md`](OSINT-SITES.md) | 185 verified OSINT sites, plus the 32 dead ones named so you stop trying them. |
 
 ---
