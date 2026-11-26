@@ -8,6 +8,8 @@ Three things live here. One is a program, two are documents.
 | [`MANUAL-RECON-FIELD-GUIDE.pdf`](MANUAL-RECON-FIELD-GUIDE.pdf) | 15-chapter manual methodology for any domain, with the commands. For hunting without the tool. (Source: `MANUAL-RECON-FIELD-GUIDE.html`.) |
 | [`OSINT-SITES.md`](OSINT-SITES.md) | 185 verified OSINT sites, plus the 32 dead ones named so you stop trying them. |
 
+📄 **Field guide (PDF):** [view / download](https://github.com/Omhhalabi/candor/blob/main/MANUAL-RECON-FIELD-GUIDE.pdf)
+
 ---
 
 ## Before the first packet
